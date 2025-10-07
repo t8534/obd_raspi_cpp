@@ -1,0 +1,52 @@
+// Example C Code to Connect via RFCOMM (SPP)
+//
+//
+// gcc -o obd_connect obd_connect.c -lbluetooth
+// 
+// Make sure your adapter is powered on and paired.
+// You can verify pairing with: bluetoothctl paired-devices
+//
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+
+int main(int argc, char **argv) {
+    struct sockaddr_rc addr = { 0 };
+    int s, status;
+    char dest[] = "10:21:3E:4A:0C:8F"; // V-LINK adapter MAC address
+
+    // Create RFCOMM socket
+    s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    // Set connection parameters (RFCOMM channel = usually 1 for OBD)
+    addr.rc_family = AF_BLUETOOTH;
+    addr.rc_channel = (uint8_t) 1;
+    str2ba(dest, &addr.rc_bdaddr);
+
+    // Connect to OBD adapter
+    status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+
+    if (status == 0) {
+        printf("Connected to OBD adapter\n");
+
+        // Send an OBD command (e.g., "010C\r" for RPM)
+        char cmd[] = "010C\r";
+        write(s, cmd, sizeof(cmd));
+
+        // Read response
+        char buf[1024] = { 0 };
+        int bytes_read = read(s, buf, sizeof(buf));
+        if (bytes_read > 0) {
+            printf("Received [%s]\n", buf);
+        }
+    } else {
+        perror("Failed to connect");
+    }
+
+    close(s);
+    return 0;
+}
+

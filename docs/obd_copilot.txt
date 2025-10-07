@@ -1,0 +1,832 @@
+===================================================================================================
+PROMPTS:
+
+Would you like help parsing the OBD-II responses or building a more complete diagnostic tool?
+
+Extend parser for multiple PIDs
+
+Create reusable OBD-II C library
+
+Add error handling to parser
+
+Would you like a parser that supports multiple PIDs like speed, temperature, or fuel level?
+
+===================================================================================================
+
+Failed to connect: org.bluez.Error.NotAvailable br-connection-profile-unavailable
+
+===================================================================================================
+Example C Code to Connect via RFCOMM (SPP)
+===================================================================================================
+
+gcc -o obd_connect obd_connect.c -lbluetooth
+
+Make sure your adapter is powered on and paired. You can verify pairing with:
+bluetoothctl paired-devices
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+
+int main(int argc, char **argv) {
+    struct sockaddr_rc addr = { 0 };
+    int s, status;
+    char dest[] = "XX:XX:XX:XX:XX:XX"; // Replace with your OBD adapter's MAC address
+
+    // Create RFCOMM socket
+    s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    // Set connection parameters (RFCOMM channel = usually 1 for OBD)
+    addr.rc_family = AF_BLUETOOTH;
+    addr.rc_channel = (uint8_t) 1;
+    str2ba(dest, &addr.rc_bdaddr);
+
+    // Connect to OBD adapter
+    status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+
+    if (status == 0) {
+        printf("Connected to OBD adapter\n");
+
+        // Send an OBD command (e.g., "010C\r" for RPM)
+        char cmd[] = "010C\r";
+        write(s, cmd, sizeof(cmd));
+
+        // Read response
+        char buf[1024] = { 0 };
+        int bytes_read = read(s, buf, sizeof(buf));
+        if (bytes_read > 0) {
+            printf("Received [%s]\n", buf);
+        }
+    } else {
+        perror("Failed to connect");
+    }
+
+    close(s);
+    return 0;
+}
+
+
+
+
+===================================================================================================
+Parsing OBD-II responses involves understanding the format of the data returned by the vehicle's
+ECU (Engine Control Unit) when you send a request using a standard PID (Parameter ID).
+Here's a breakdown of how it works:
+===================================================================================================
+
+1. OBD-II Request Format
+You send a command like: 010C\r
+
+01 = Mode 1 (Show current data)
+0C = PID for engine RPM
+\r = Carriage return (required by most OBD adapters)
+
+2. Typical Response Format
+The response might look like: 41 0C 1A F8
+
+41 = Response to Mode 1
+0C = Echo of the PID
+1A F8 = Data bytes
+
+3. Parse the Data
+For RPM (0C), the formula is:
+
+RPM = ((A * 256) + B) / 4
+
+Where:
+A = 0x1A
+B = 0xF8
+
+So:
+
+int A = 0x1A;
+int B = 0xF8;
+int rpm = ((A * 256) + B) / 4;  // Result: 1726 RPM
+
+Example in C:
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int parse_rpm(const char *response) {
+    int A, B;
+    sscanf(response, "41 0C %x %x", &A, &B);
+    return ((A * 256) + B) / 4;
+}
+
+int main() {
+    const char *response = "41 0C 1A F8";
+    int rpm = parse_rpm(response);
+    printf("Engine RPM: %d\n", rpm);
+    return 0;
+}
+
+Different PIDs have different formulas.
+You may need to clean up the response string (remove extra characters, line breaks).
+Some adapters return extra info like SEARCHING... or NO DATA.
+
+===================================================================================================
+Handling noisy OBD-II responses means dealing with unexpected characters, partial data, or extra
+messages like "SEARCHING...", "NO DATA", or line breaks that can interfere with parsing.
+Here's how to clean and parse such responses reliably in C:
+===================================================================================================
+
+Step 1: Clean the Raw Response
+You may receive something like:
+
+SEARCHING...
+41 0C 1A F8\r\n
+
+Or:
+
+\r\nNO DATA\r\n
+
+You need to:
+Remove non-response lines (SEARCHING..., NO DATA)
+Strip carriage returns (\r) and newlines (\n)
+Extract only valid hex response lines
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int parse_rpm(const char *raw_response) {
+    char clean[256] = {0};
+    const char *line = raw_response;
+
+    // Step 1: Remove unwanted lines
+    while (*line) {
+        if (strstr(line, "41 0C")) {
+            strncpy(clean, line, sizeof(clean) - 1);
+            break;
+        }
+        line = strchr(line, '\n');
+        if (!line) break;
+        line++;
+    }
+
+    // Step 2: Extract hex values
+    int A = 0, B = 0;
+    if (sscanf(clean, "41 0C %x %x", &A, &B) == 2) {
+        return ((A * 256) + B) / 4;
+    }
+
+    return -1; // Parsing failed
+}
+
+int main() {
+    const char *response = "SEARCHING...\r\n41 0C 1A F8\r\n";
+    int rpm = parse_rpm(response);
+
+    if (rpm != -1)
+        printf("Engine RPM: %d\n", rpm);
+    else
+        printf("Failed to parse RPM\n");
+
+    return 0;
+}
+
+
+Tips for Robust Parsing:
+Use strstr() to locate valid response lines.
+Use sscanf() for structured parsing.
+Consider trimming whitespace and filtering out non-hex characters if needed.
+Always validate the number of bytes received before parsing.
+
+===================================================================================================
+To extend your OBD-II parser in C to handle multiple PIDs, you can build a modular system that:
+Identifies valid response lines.
+Matches them to known PIDs.
+Applies the correct formula to extract values.
+===================================================================================================
+
+Common PIDs and Their Parsing Logic:
+
+PID          Description           Formula
+
+0C           Engine RPM            ((A * 256) + B) / 4
+
+0D           Vehicle Speed         A (in km/h)
+
+05           Coolant Temp          A - 40 (in °C)
+
+0F           Intake Air Temp       A - 40 (in °C)
+
+11           Throttle Position     (A * 100) / 255 (%)
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int parse_pid(const char *line) {
+    int pid, A = 0, B = 0;
+    if (sscanf(line, "41 %x %x %x", &pid, &A, &B) < 2) return -1;
+
+    switch (pid) {
+        case 0x0C: // RPM
+            return ((A * 256) + B) / 4;
+        case 0x0D: // Speed
+            return A;
+        case 0x05: // Coolant Temp
+            return A - 40;
+        case 0x0F: // Intake Air Temp
+            return A - 40;
+        case 0x11: // Throttle Position
+            return (A * 100) / 255;
+        default:
+            return -1; // Unknown PID
+    }
+}
+
+void parse_obd_response(const char *response) {
+    char line[256];
+    const char *start = response;
+
+    while (start && *start) {
+        if (sscanf(start, "%[^\r\n]", line) == 1) {
+            if (strstr(line, "41 ")) {
+                int value = parse_pid(line);
+                if (value != -1) {
+                    printf("Parsed value from line '%s': %d\n", line, value);
+                }
+            }
+        }
+        start = strchr(start, '\n');
+        if (start) start++;
+    }
+}
+
+int main() {
+    const char *response =
+        "SEARCHING...\r\n"
+        "41 0C 1A F8\r\n"
+        "41 0D 3C\r\n"
+        "41 05 5A\r\n";
+
+    parse_obd_response(response);
+    return 0;
+}
+
+What This Does
+
+Cleans and splits the response into lines.
+Identifies valid OBD-II response lines (41 XX ...).
+Parses each line based on the PID.
+Applies the correct formula and prints the result.
+
+Would you like to log these values to a file, display them in real-time, or integrate with a dashboard?
+
+
+To log parsed OBD-II values to a file in C, you can extend the previous example by writing the results to a text file using standard file I/O.
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int parse_pid(const char *line, FILE *log) {
+    int pid, A = 0, B = 0;
+    if (sscanf(line, "41 %x %x %x", &pid, &A, &B) < 2) return -1;
+
+    int value = -1;
+    const char *label = NULL;
+
+    switch (pid) {
+        case 0x0C: // RPM
+            value = ((A * 256) + B) / 4;
+            label = "RPM";
+            break;
+        case 0x0D: // Speed
+            value = A;
+            label = "Speed";
+            break;
+        case 0x05: // Coolant Temp
+            value = A - 40;
+            label = "CoolantTemp";
+            break;
+        case 0x0F: // Intake Air Temp
+            value = A - 40;
+            label = "IntakeTemp";
+            break;
+        case 0x11: // Throttle Position
+            value = (A * 100) / 255;
+            label = "Throttle";
+            break;
+    }
+
+    if (value != -1 && label) {
+        fprintf(log, "%s: %d\n", label, value);
+        printf("%s: %d\n", label, value);
+    }
+
+    return value;
+}
+
+void parse_obd_response(const char *response, FILE *log) {
+    char line[256];
+    const char *start = response;
+
+    while (start && *start) {
+        if (sscanf(start, "%[^\r\n]", line) == 1) {
+            if (strstr(line, "41 ")) {
+                parse_pid(line, log);
+            }
+        }
+        start = strchr(start, '\n');
+        if (start) start++;
+    }
+}
+
+int main() {
+    const char *response =
+        "SEARCHING...\r\n"
+        "41 0C 1A F8\r\n"
+        "41 0D 3C\r\n"
+        "41 05 5A\r\n";
+
+    FILE *log = fopen("obd_log.txt", "a");
+    if (!log) {
+        perror("Failed to open log file");
+        return 1;
+    }
+
+    parse_obd_response(response, log);
+
+    fclose(log);
+    return 0;
+}
+
+
+Here’s how you can add timestamps and format your OBD-II log as a CSV file in C:
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
+int parse_pid(const char *line, FILE *log) {
+    int pid, A = 0, B = 0;
+    if (sscanf(line, "41 %x %x %x", &pid, &A, &B) < 2) return -1;
+
+    int value = -1;
+    const char *label = NULL;
+
+    switch (pid) {
+        case 0x0C: value = ((A * 256) + B) / 4; label = "RPM"; break;
+        case 0x0D: value = A; label = "Speed"; break;
+        case 0x05: value = A - 40; label = "CoolantTemp"; break;
+        case 0x0F: value = A - 40; label = "IntakeTemp"; break;
+        case 0x11: value = (A * 100) / 255; label = "Throttle"; break;
+    }
+
+    if (value != -1 && label) {
+        // Get current timestamp
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        char timestamp[64];
+        strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", t);
+
+        // Write to CSV
+        fprintf(log, "%s,%s,%d\n", timestamp, label, value);
+        printf("%s,%s,%d\n", timestamp, label, value);
+    }
+
+    return value;
+}
+
+void parse_obd_response(const char *response, FILE *log) {
+    char line[256];
+    const char *start = response;
+
+    while (start && *start) {
+        if (sscanf(start, "%[^\r\n]", line) == 1) {
+            if (strstr(line, "41 ")) {
+                parse_pid(line, log);
+            }
+        }
+        start = strchr(start, '\n');
+        if (start) start++;
+    }
+}
+
+int main() {
+    const char *response =
+        "SEARCHING...\r\n"
+        "41 0C 1A F8\r\n"
+        "41 0D 3C\r\n"
+        "41 05 5A\r\n";
+
+    FILE *log = fopen("obd_log.csv", "a");
+    if (!log) {
+        perror("Failed to open log file");
+        return 1;
+    }
+
+    // Optional: write CSV header if file is empty
+    fseek(log, 0, SEEK_END);
+    if (ftell(log) == 0) {
+        fprintf(log, "Timestamp,PID,Value\n");
+    }
+
+    parse_obd_response(response, log);
+
+    fclose(log);
+    return 0;
+}
+
+Output Format (CSV)
+Timestamp,PID,Value
+2025-10-07 11:05:23,RPM,1726
+2025-10-07 11:05:23,Speed,60
+2025-10-07 11:05:23,CoolantTemp,50
+
+Here’s the updated version of your OBD-II CSV logger in C that includes units for each PID value:
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
+int parse_pid(const char *line, FILE *log) {
+    int pid, A = 0, B = 0;
+    if (sscanf(line, "41 %x %x %x", &pid, &A, &B) < 2) return -1;
+
+    int value = -1;
+    const char *label = NULL;
+    const char *unit = NULL;
+
+    switch (pid) {
+        case 0x0C: value = ((A * 256) + B) / 4; label = "RPM"; unit = "rpm"; break;
+        case 0x0D: value = A; label = "Speed"; unit = "km/h"; break;
+        case 0x05: value = A - 40; label = "CoolantTemp"; unit = "°C"; break;
+        case 0x0F: value = A - 40; label = "IntakeTemp"; unit = "°C"; break;
+        case 0x11: value = (A * 100) / 255; label = "Throttle"; unit = "%"; break;
+    }
+
+    if (value != -1 && label && unit) {
+        // Get current timestamp
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        char timestamp[64];
+        strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", t);
+
+        // Write to CSV
+        fprintf(log, "%s,%s,%d,%s\n", timestamp, label, value, unit);
+        printf("%s,%s,%d,%s\n", timestamp, label, value, unit);
+    }
+
+    return value;
+}
+
+void parse_obd_response(const char *response, FILE *log) {
+    char line[256];
+    const char *start = response;
+
+    while (start && *start) {
+        if (sscanf(start, "%[^\r\n]", line) == 1) {
+            if (strstr(line, "41 ")) {
+                parse_pid(line, log);
+            }
+        }
+        start = strchr(start, '\n');
+        if (start) start++;
+    }
+}
+
+int main() {
+    const char *response =
+        "SEARCHING...\r\n"
+        "41 0C 1A F8\r\n"
+        "41 0D 3C\r\n"
+        "41 05 5A\r\n"
+        "41 11 80\r\n";
+
+    FILE *log = fopen("obd_log.csv", "a");
+    if (!log) {
+        perror("Failed to open log file");
+        return 1;
+    }
+
+    // Optional: write CSV header if file is empty
+    fseek(log, 0, SEEK_END);
+    if (ftell(log) == 0) {
+        fprintf(log, "Timestamp,PID,Value,Unit\n");
+    }
+
+    parse_obd_response(response, log);
+
+    fclose(log);
+    return 0;
+}
+
+
+Here’s an enhanced version of your OBD-II CSV logger in C that:
+
+Supports more PIDs
+Adds units
+Includes error handling for malformed or unsupported responses
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Structure to hold PID info
+typedef struct {
+    int pid;
+    const char *label;
+    const char *unit;
+    int (*parse)(int A, int B);
+} PIDInfo;
+
+// Parsing functions
+int parse_rpm(int A, int B) { return ((A * 256) + B) / 4; }
+int parse_speed(int A, int B) { return A; }
+int parse_temp(int A, int B) { return A - 40; }
+int parse_throttle(int A, int B) { return (A * 100) / 255; }
+int parse_maf(int A, int B) { return ((A * 256) + B) / 100; } // grams/sec
+
+// Supported PIDs
+PIDInfo pid_table[] = {
+    {0x0C, "RPM", "rpm", parse_rpm},
+    {0x0D, "Speed", "km/h", parse_speed},
+    {0x05, "CoolantTemp", "°C", parse_temp},
+    {0x0F, "IntakeTemp", "°C", parse_temp},
+    {0x11, "Throttle", "%", parse_throttle},
+    {0x10, "MAF", "g/s", parse_maf},
+};
+
+#define PID_COUNT (sizeof(pid_table) / sizeof(PIDInfo))
+
+int parse_pid(const char *line, FILE *log) {
+    int mode, pid, A = 0, B = 0;
+    if (sscanf(line, "%x %x %x %x", &mode, &pid, &A, &B) < 3) {
+        fprintf(stderr, "Malformed line: %s\n", line);
+        return -1;
+    }
+
+    if (mode != 0x41) {
+        fprintf(stderr, "Unsupported mode: %02X\n", mode);
+        return -1;
+    }
+
+    for (int i = 0; i < PID_COUNT; i++) {
+        if (pid_table[i].pid == pid) {
+            int value = pid_table[i].parse(A, B);
+
+            // Timestamp
+            time_t now = time(NULL);
+            struct tm *t = localtime(&now);
+            char timestamp[64];
+            strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", t);
+
+            // Log to CSV
+            fprintf(log, "%s,%s,%d,%s\n", timestamp, pid_table[i].label, value, pid_table[i].unit);
+            printf("%s,%s,%d,%s\n", timestamp, pid_table[i].label, value, pid_table[i].unit);
+            return value;
+        }
+    }
+
+    fprintf(stderr, "Unknown PID: %02X\n", pid);
+    return -1;
+}
+
+void parse_obd_response(const char *response, FILE *log) {
+    char line[256];
+    const char *start = response;
+
+    while (start && *start) {
+        if (sscanf(start, "%[^\r\n]", line) == 1) {
+            if (strstr(line, "41 ")) {
+                parse_pid(line, log);
+            }
+        }
+        start = strchr(start, '\n');
+        if (start) start++;
+    }
+}
+
+int main() {
+    const char *response =
+        "SEARCHING...\r\n"
+        "41 0C 1A F8\r\n"
+        "41 0D 3C\r\n"
+        "41 05 5A\r\n"
+        "41 11 80\r\n"
+        "41 10 01 20\r\n"
+        "41 ZZ 00 00\r\n"; // Invalid PID for testing
+
+    FILE *log = fopen("obd_log.csv", "a");
+    if (!log) {
+        perror("Failed to open log file");
+        return 1;
+    }
+
+    // Write header if file is empty
+    fseek(log, 0, SEEK_END);
+    if (ftell(log) == 0) {
+        fprintf(log, "Timestamp,PID,Value,Unit\n");
+    }
+
+    parse_obd_response(response, log);
+
+    fclose(log);
+    return 0;
+}
+
+
+To add real-time Bluetooth reading from an OBD-II adapter using C on Raspberry Pi, you'll need to:
+
+Connect to the Bluetooth device using RFCOMM.
+Continuously read data from the socket.
+Parse and log the responses as they arrive.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+#include <string.h>
+#include <time.h>
+
+// Include your PID parsing logic here (from previous code)
+int parse_pid(const char *line, FILE *log); // Assume this is defined
+
+void log_obd_data(int sock, FILE *log) {
+    char buf[1024];
+    while (1) {
+        memset(buf, 0, sizeof(buf));
+        int bytes_read = read(sock, buf, sizeof(buf));
+        if (bytes_read > 0) {
+            parse_pid(buf, log); // Parse and log the response
+        } else {
+            perror("Bluetooth read failed");
+            break;
+        }
+        sleep(1); // Adjust polling rate as needed
+    }
+}
+
+int main() {
+    struct sockaddr_rc addr = { 0 };
+    int sock;
+    char dest[] = "XX:XX:XX:XX:XX:XX"; // Replace with your OBD adapter's MAC
+
+    // Create socket
+    sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    // Set connection parameters
+    addr.rc_family = AF_BLUETOOTH;
+    addr.rc_channel = (uint8_t) 1; // Most OBD-II adapters use channel 1
+    str2ba(dest, &addr.rc_bdaddr);
+
+    // Connect
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+        perror("Failed to connect to OBD adapter");
+        return 1;
+    }
+
+    printf("Connected to OBD adapter\n");
+
+    // Open log file
+    FILE *log = fopen("obd_log.csv", "a");
+    if (!log) {
+        perror("Failed to open log file");
+        close(sock);
+        return 1;
+    }
+
+    // Write header if file is empty
+    fseek(log, 0, SEEK_END);
+    if (ftell(log) == 0) {
+        fprintf(log, "Timestamp,PID,Value,Unit\n");
+    }
+
+    // Send initial PID request (e.g., RPM)
+    write(sock, "010C\r", 5);
+
+    // Start reading and logging
+    log_obd_data(sock, log);
+
+    fclose(log);
+    close(sock);
+    return 0;
+}
+
+
+Notes
+
+You can send multiple PID requests like "010C\r" (RPM), "010D\r" (Speed), etc.
+You may want to cycle through PIDs in a loop and send them periodically.
+Make sure your adapter is paired and trusted via bluetoothctl.
+
+======================
+
+Would you like help building a loop that queries multiple PIDs in real time or visualizing the data live?
+
+yes, both options
+
+Perfect! Let's break this into two parts:
+
+Part 1: Real-Time OBD-II PID Polling Loop
+You can modify your C program to cycle through multiple PID requests (e.g., RPM, Speed, Coolant Temp) and read responses in real time.
+
+Example PID Polling Loop
+
+const char *pid_commands[] = {
+    "010C\r", // RPM
+    "010D\r", // Speed
+    "0105\r", // Coolant Temp
+    "010F\r", // Intake Air Temp
+    "0111\r", // Throttle Position
+    "0110\r", // MAF
+};
+
+int num_pids = sizeof(pid_commands) / sizeof(pid_commands[0]);
+
+for (int i = 0; i < num_pids; i++) {
+    write(sock, pid_commands[i], strlen(pid_commands[i]));
+    sleep(1); // Wait for response
+    memset(buf, 0, sizeof(buf));
+    int bytes_read = read(sock, buf, sizeof(buf));
+    if (bytes_read > 0) {
+        parse_pid(buf, log);
+    }
+}
+
+You can wrap this in a loop to continuously poll every few seconds.
+
+
+To visualize the data from your obd_log.csv file, I’ll generate a Python script that:
+
+Reads the CSV file.
+Plots values over time (e.g., RPM, Speed, Temperature).
+Saves or displays the graph.
+
+Let me create that for you now.
+
+import csv
+import random
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+
+# Step 1: Generate sample data and write to 'obd_log.csv'
+with open('obd_log.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['Timestamp', 'PID', 'Value', 'Unit'])
+
+    start_time = datetime.now()
+    for i in range(50):  # 50 time points, every 10 seconds
+        timestamp = (start_time + timedelta(seconds=i * 10)).strftime('%Y-%m-%d %H:%M:%S')
+        writer.writerow([timestamp, 'RPM', random.randint(700, 3000), 'rpm'])
+        writer.writerow([timestamp, 'Speed', random.randint(0, 120), 'km/h'])
+        writer.writerow([timestamp, 'CoolantTemp', random.randint(70, 100), '°C'])
+
+# Step 2: Read the CSV and organize data
+timestamps = []
+rpm_values = []
+speed_values = []
+temp_values = []
+
+with open('obd_log.csv', 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        if row['PID'] == 'RPM':
+            timestamps.append(datetime.strptime(row['Timestamp'], '%Y-%m-%d %H:%M:%S'))
+            rpm_values.append(int(row['Value']))
+        elif row['PID'] == 'Speed':
+            speed_values.append(int(row['Value']))
+        elif row['PID'] == 'CoolantTemp':
+            temp_values.append(int(row['Value']))
+
+# Step 3: Plot the data
+plt.figure(figsize=(12, 6))
+plt.plot(timestamps, rpm_values, label='RPM (rpm)', color='blue')
+plt.plot(timestamps, speed_values, label='Speed (km/h)', color='green')
+plt.plot(timestamps, temp_values, label='Coolant Temp (°C)', color='red')
+
+plt.xlabel('Timestamp')
+plt.ylabel('Value')
+plt.title('OBD-II Sensor Readings Over Time')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.xticks(rotation=45)
+
+# Save the plot
+plt.savefig('obd_plot.png')
+print("Plot saved as 'obd_plot.png'.")
+
+
+Requirements
+Make sure you have the following Python packages installed:
+
+pip install matplotlib
+
