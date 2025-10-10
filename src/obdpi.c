@@ -14,6 +14,7 @@
 #include <bluetooth/rfcomm.h>
 
 int main(int argc, char **argv) {
+
     struct sockaddr_rc addr = { 0 };
     int s, status;
     char dest[] = "10:21:3E:4A:0C:8F"; // V-LINK adapter MAC address
@@ -33,7 +34,9 @@ int main(int argc, char **argv) {
         printf("Connected to OBD adapter\n");
 
         // Send an OBD command (e.g., "010C\r" for RPM)
-        char cmd[] = "010C\r";
+        //char cmd[] = "010C\r";
+        char cmd[] = "AT i\r";
+        //char cmd[] = "41542049\r";
         write(s, cmd, sizeof(cmd));
 
         // Read response
@@ -47,6 +50,7 @@ int main(int argc, char **argv) {
     }
 
     close(s);
+    
     return 0;
 }
 
