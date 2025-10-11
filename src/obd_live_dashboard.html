@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live OBD-II Dashboard</title>
+  <meta http-equiv="refresh" content="10">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      text-align: center;
+    }
+    h1 { color: #0f0; }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #333;
+    }
+    th {
+      background: #222;
+    }
+    td {
+      background: #181818;
+    }
+    canvas {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live OBD-II Dashboard</h1>
+
+  <?php
+  $logDir = "/home/pi/obd_logs";
+  $latestFile = '';
+  $latestTime = 0;
+
+  foreach (glob("$logDir/obd_log_*.csv") as $file) {
+    if (filemtime($file) > $latestTime) {
+      $latestTime = filemtime($file);
+      $latestFile = $file;
+    }
+  }
+
+  if ($latestFile && file_exists($latestFile)) {
+    $lines = file($latestFile);
+    $header = str_getcsv($lines[0]);
+    $last = str_getcsv(end($lines));
+
+    echo "<table><tr><th>Sensor</th><th>Value</th></tr>";
+    for ($i = 0; $i < count($header); $i++) {
+      echo "<tr><td>" . htmlspecialchars($header[$i]) . "</td><td>" . htmlspecialchars($last[$i]) . "</td></tr>";
+    }
+    echo "</table>";
+
+    // Extract last 20 records for graphing
+    $dataLines = array_slice($lines, -21);
+    $labels = [];
+    $rpm = [];
+    $speed = [];
+
+    foreach ($dataLines as $i => $line) {
+      if ($i === 0) continue; // Skip header
+      $row = str_getcsv($line);
+      $labels[] = substr($row[0], 11, 8); // time only
+      $rpm[] = (int)$row[1];
+      $speed[] = (int)$row[2];
+    }
+
+    echo "<canvas id='rpmChart' width='600' height='300'></canvas>";
+    echo "<canvas id='speedChart' width='600' height='300'></canvas>";
+
+    echo "<script>
+      const labels = " . json_encode($labels) . ";
+      const rpmData = " . json_encode($rpm) . ";
+      const speedData = " . json_encode($speed) . ";
+
+      new Chart(document.getElementById('rpmChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'RPM',
+            data: rpmData,
+            borderColor: 'lime',
+            backgroundColor: 'rgba(0,255,0,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { scales: { x: { title: { display: true, text: 'Time' } }, y: { beginAtZero: true } } }
+      });
+
+      new Chart(document.getElementById('speedChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Speed (km/h)',
+            data: speedData,
+            borderColor: 'cyan',
+            backgroundColor: 'rgba(0,255,255,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { scales: { x: { title: { display: true, text: 'Time' } }, y: { beginAtZero: true } } }
+      });
+    </script>";
+
+  } else {
+    echo "<p>No log file found.</p>";
+  }
+
+  // Display DTCs if available
+  $dtcFiles = glob("$logDir/dtc_log_*.csv");
+  if (!empty($dtcFiles)) {
+    rsort($dtcFiles);
+    $latestDTC = file($dtcFiles[0]);
+    if (count($latestDTC) > 1) {
+      echo "<h2>Diagnostic Trouble Codes (DTCs)</h2><table><tr><th>Timestamp</th><th>Code</th></tr>";
+      foreach (array_slice($latestDTC, -10) as $line) {
+        $parts = str_getcsv($line);
+        if (count($parts) >= 3) {
+          echo "<tr><td>" . htmlspecialchars($parts[0]) . "</td><td>" . htmlspecialchars($parts[2]) . "</td></tr>";
+        }
+      }
+      echo "</table>";
+    }
+  }
+  ?>
+
+  <p>Page auto-refreshes every 10 seconds.</p>
+</body>
+</html>
+
