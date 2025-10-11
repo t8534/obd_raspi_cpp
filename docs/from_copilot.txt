@@ -221,6 +221,17 @@ int main() {
 
 Would you like help with scanning for nearby devices or discovering available services and characteristics before connecting?
 
+==========================================================================================
+
+
+Compiling Your Code
+
+1. Include the Header:
+In your C/C++ source file, you'll need to include the main Bluetooth header: #include <bluetooth/bluetooth.h>. 
+
+2. Link the Library:
+When compiling, add -lbluetooth to your command to link your program with the libbluetooth library.
+For example, using GCC: gcc your_file.c -o your_program -lbluetooth
 
 
 
