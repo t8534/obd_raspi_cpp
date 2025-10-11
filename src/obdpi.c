@@ -6,6 +6,9 @@
 // Make sure your adapter is powered on and paired.
 // You can verify pairing with: bluetoothctl paired-devices
 //
+//
+// sudo stty -F /dev/rfcomm0 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts  
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,8 +38,8 @@ int main(int argc, char **argv) {
 
         // Send an OBD command (e.g., "010C\r" for RPM)
         //char cmd[] = "010C\r";
-        char cmd[] = "AT i\r";
-        //char cmd[] = "41542049\r";
+        //char cmd[] = "ATI\r";
+        char cmd[] = "415449\r";
         write(s, cmd, sizeof(cmd));
 
         // Read response

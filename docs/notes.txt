@@ -1,0 +1,8 @@
+Look at:
+
+https://forums.raspberrypi.com/viewtopic.php?p=521067#p521067
+
+https://stackoverflow.com/questions/63381965/bind-bluetooth-device-programmatically-to-rfcomm-via-python-in
+
+https://raspberrypi.stackexchange.com/questions/118668/connecting-various-devices-using-bluetooth-as-serial-port
+
