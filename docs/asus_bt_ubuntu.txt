@@ -1,0 +1,211 @@
+Perfect — the ASUS USB-BT500 (Realtek RTL8761B) can work very well on Ubuntu Desktop, but it often needs firmware files and sometimes a newer kernel Bluetooth driver depending on your Ubuntu version.
+
+Below is the definitive installation guide for Ubuntu (22.04, 24.04, or similar).
+
+1. Check your Ubuntu version
+First, see what you’re running:
+
+lsb_release -a
+
+If you’re on Ubuntu 22.04 or 24.04, the driver support is mostly built-in — you just need the firmware package.
+
+2. Plug in the ASUS USB-BT500
+Then check if the system detects it:
+
+lsusb
+
+You should see something like:
+
+Bus 001 Device 006: ID 0b05:190e ASUSTek Computer, Inc. Broadcom Bluetooth 5.0 Adapter
+
+If you see that → it’s recognized as a USB device.
+Now check kernel messages:
+
+dmesg | grep -i bluetooth
+
+If you see a message like:
+
+Bluetooth: hci0: RTL: firmware file not found
+Bluetooth: hci0: RTL: rtl: loading rtl_bt/rtl8761b_fw.bin failed
+
+you need to install the firmware manually (next step).
+
+3. Install firmware
+Try the official Realtek firmware package first:
+
+sudo apt update
+sudo apt install firmware-realtek -y
+
+Then reboot:
+
+sudo reboot
+
+After reboot, check again:
+
+dmesg | grep -i hci
+
+You should now see:
+
+Bluetooth: hci0: RTL: firmware version 0xxxxxxx
+Bluetooth: hci0: RTL: rtl: firmware loaded successfully
+
+If that doesn’t appear, continue below.
+
+
+4. (Manual method) Install Realtek RTL8761B firmware manually
+If firmware-realtek didn’t include the correct files (some Ubuntu releases don’t ship them yet):
+
+cd /lib/firmware/rtl_bt
+sudo wget https://github.com/winterheart/broadcom-bt-firmware/raw/master/rtl_bt/rtl8761b_fw.bin
+sudo wget https://github.com/winterheart/broadcom-bt-firmware/raw/master/rtl_bt/rtl8761b_config.bin
+sudo reboot
+
+After reboot:
+
+dmesg | grep -i hci
+
+You should see confirmation that firmware loaded successfully.
+
+5. Check Bluetooth interface
+
+hciconfig -a
+
+You should see something like:
+
+hci0: Type: Primary  Bus: USB
+        BD Address: 00:1A:7D:DA:71:13  ACL MTU: 1021:8  SCO MTU: 64:1
+        UP RUNNING PSCAN
+        ...
+
+If it’s DOWN:
+
+sudo hciconfig hci0 up
+
+6. Enable and test Bluetooth service
+Ensure the Bluetooth service is active:
+
+sudo systemctl enable bluetooth
+sudo systemctl start bluetooth
+systemctl status bluetooth
+
+Then use the interactive tool:
+
+bluetoothctl
+
+Inside:
+
+power on
+scan on
+
+You should see nearby devices appear.
+
+7. (Optional) Install GUI Bluetooth tools
+For Ubuntu Desktop:
+
+sudo apt install blueman -y
+
+You’ll get a Bluetooth icon in your system tray for easy pairing and management.
+
+
+8. Verify persistence
+Reboot once more to ensure it initializes automatically:
+
+sudo reboot
+
+After restart, run:
+
+hciconfig
+
+If you still see hci0 → everything is permanent and working fine.
+
+Summary
+
+What this does:
+
+Loads the correct Realtek RTL8761B firmware
+
+Enables the Bluetooth service
+
+Makes your ASUS USB-BT500 usable on Ubuntu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
