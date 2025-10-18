@@ -57,7 +57,13 @@
 // Device is paired (try bluetoothctl > pair + trust)
 //
 //
-
+// [251018]
+// Tests result: OK 
+//
+//
+// Notes:
+// Use this file for next steps.
+//
 
 
 #include <stdio.h>
@@ -70,19 +76,20 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
-#define BT_ADDR "00:1D:A5:68:98:8B"  // Replace with your V-LINK MAC address
+#define BT_ADDR "10:21:3E:4A:0C:8F"  // Replace with your V-LINK MAC address
 #define RFCOMM_CHANNEL 1             // V-LINK typically uses channel 1
 #define CMD "AT I\r"                 // AT command with carriage return
 
 int main() {
     struct sockaddr_rc addr = { 0 };
-    int sock, status;
+    int sock = 0;
+    int status = 0;
     char buf[1024] = { 0 };
 
     // Allocate socket
     sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     if (sock < 0) {
-        perror("socket");
+        perror("Error: socket not allocated");
         return 1;
     }
 
@@ -94,29 +101,36 @@ int main() {
     // Connect to server (V-LINK)
     status = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
     if (status < 0) {
-        perror("connect");
+        perror("Error: connect failed");
         close(sock);
         return 1;
+    } else {
+        printf("OK: connected \n");
     }
 
     // Send AT command
     status = write(sock, CMD, strlen(CMD));
     if (status < 0) {
-        perror("write");
+        perror("Error: write failed");
         close(sock);
         return 1;
+    } else {
+        printf("Sent bytes = %d \n", status);    
     }
 
     // Read response
-    usleep(500000);  // wait 500ms
+    status = 0;
+    usleep(500000);  // wait 500ms, any delay is necessary, check how much
     status = read(sock, buf, sizeof(buf));
     if (status < 0) {
-        perror("read");
+        perror("Error: read failed");
         close(sock);
         return 1;
     }
 
+    printf("Received bytes = %d \n", status);
     printf("Response: %s\n", buf);
+    
 
     close(sock);
     return 0;

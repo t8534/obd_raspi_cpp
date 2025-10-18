@@ -9,12 +9,19 @@
 //
 // sudo stty -F /dev/rfcomm0 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts  
 //
+// [251018]
+// Tests result: OK
+//
+// Notes:
+// This example is a bit worse than obd_rfcomm.c, use this second one finally.
+//
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
+
 
 int main(int argc, char **argv) {
 
@@ -38,16 +45,20 @@ int main(int argc, char **argv) {
 
         // Send an OBD command (e.g., "010C\r" for RPM)
         //char cmd[] = "010C\r";
-        //char cmd[] = "ATI\r";
-        char cmd[] = "415449\r";
+        char cmd[] = "AT I\r";
         write(s, cmd, sizeof(cmd));
 
+        usleep(500000);  // wait 500ms, any delay is necessary, check how much
         // Read response
         char buf[1024] = { 0 };
         int bytes_read = read(s, buf, sizeof(buf));
-        if (bytes_read > 0) {
-            printf("Received [%s]\n", buf);
+        if (bytes_read >= 0) {
+            printf("Received bytes = %d \n", bytes_read);
+            printf("Response: %s\n", buf);
+        } else {
+            perror("Error: read failed");
         }
+        
     } else {
         perror("Failed to connect");
     }
