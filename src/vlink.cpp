@@ -1,6 +1,8 @@
 // 
 // The file covers communication with V-LINK BT OBD adapter
 //
+//
+//
 
 #include "vlink.hpp"
 //#include <bluetooth/bluetooth.h>
