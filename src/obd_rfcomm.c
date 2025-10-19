@@ -1,7 +1,7 @@
 /*
  * obd_rfcomm.c
  *
- *  Created on: 11 paŸ 2025
+ *  Created on: 11 paï¿½ 2025
  *      Author: arek1
  */
 
@@ -16,7 +16,7 @@
 //
 // This means:
 //
-// You don’t need to bind the device manually to /dev/rfcommX beforehand.
+// You donï¿½t need to bind the device manually to /dev/rfcommX beforehand.
 //
 // Your code connects directly to the Bluetooth address of the OBD adapter using RFCOMM protocol (like Bluetooth serial).
 //
@@ -50,7 +50,7 @@
 //
 // MAC address format (should be XX:XX:XX:XX:XX:XX)
 //
-// Channel number (try 1–3)
+// Channel number (try 1ï¿½3)
 //
 // Device is powered and within range
 //
@@ -63,6 +63,7 @@
 //
 // Notes:
 // Use this file for next steps.
+//
 //
 
 
