@@ -30,17 +30,17 @@ public:
 	//OBDParserMode& operator=(const OBDParserMode &other);
 	//OBDParserMode& operator=(OBDParserMode &&other);
 
-	enum ErrorCode {
+	enum class RetStatus {
 	    OK,
 	    NOT_OK
 	};
 
-    ErrorCode parseData(std::string data);
+    RetStatus parseData(std::string data);
 
     //TODO: Called during app initialization from Config.
     // It should set selected or not this module.
     // And if selected it should load selected PIDs nad select each od them by calling their configure() function
-    ErrorCode configure(bool modeSelected, std::vector &PIDsList);
+    RetStatus configure(bool modeSelected, std::vector<OBDParserModePID> &PIDsList);
 
     std::string toString();
 

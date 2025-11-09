@@ -25,9 +25,9 @@ OBDParserModePID::~OBDParserModePID() {
 //OBDParserModePID& OBDParserModePID::operator=(OBDParserModePID &&other) {}
 
 
-OBDParserModePID::ErrorCode configure(bool pidSelected)
+OBDParserModePID::RetStatus OBDParserModePID::configure(bool pidSelected)
 {
-	OBDParserModePID::ErrorCode ret = OBDParserModePID::ErrorCode::NOT_OK;
+	RetStatus ret = RetStatus::NOT_OK;
 
 	selected = pidSelected;
 
@@ -35,9 +35,9 @@ OBDParserModePID::ErrorCode configure(bool pidSelected)
 }
 
 
-OBDParserModePID::ErrorCode parseData(std::string data)
+OBDParserModePID::RetStatus OBDParserModePID::parseData(std::string data)
 {
-	OBDParserModePID::ErrorCode ret = OBDParserModePID::ErrorCode::NOT_OK;
+	RetStatus ret = RetStatus::NOT_OK;
 
 
 
@@ -45,7 +45,7 @@ OBDParserModePID::ErrorCode parseData(std::string data)
 }
 
 
-std::string toString()
+std::string OBDParserModePID::toString()
 {
 	std::string ret = "";
 

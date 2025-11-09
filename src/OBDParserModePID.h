@@ -26,14 +26,14 @@ public:
 	//OBDParserModePID& operator=(OBDParserModePID &&other);
 
 
-	enum ErrorCode {
+	enum RetStatus {
 	    OK,
 	    NOT_OK
 	};
 
-    ErrorCode configure(bool pidSelected);
+    RetStatus configure(bool pidSelected);
 
-    ErrorCode parseData(std::string data);
+    RetStatus parseData(std::string data);
 
     std::string toString();
 

@@ -24,40 +24,40 @@ Com::~Com() {
 //Com& Com::operator=(Com &&other) {}
 
 
-Com::ErrorCode sendCmd(std::string cmd)
+Com::ErrorCode Com::sendCmd(std::string cmd)
 {
 	return Com::ErrorCode::OK;
 }
 
 
-std::string getResponse()
+std::string Com::getResponse()
 {
 	return "test";
 }
 
 
 //TODO: return OK or NOT_OK
-Com::ErrorCode init()
+Com::ErrorCode Com::init()
 {
 	return Com::ErrorCode::OK;
 }
 
 
-Com::ErrorCode deinit()
-{
-	return Com::ErrorCode::OK;
-}
-
-
-//TODO: return OK or NOT_OK
-Com::ErrorCode resetHW()
+Com::ErrorCode Com::deinit()
 {
 	return Com::ErrorCode::OK;
 }
 
 
 //TODO: return OK or NOT_OK
-Com::ErrorCode resetSW()
+Com::ErrorCode Com::resetHW()
+{
+	return Com::ErrorCode::OK;
+}
+
+
+//TODO: return OK or NOT_OK
+Com::ErrorCode Com::resetSW()
 {
 	return Com::ErrorCode::OK;
 }

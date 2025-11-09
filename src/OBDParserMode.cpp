@@ -42,16 +42,16 @@ OBDParserMode::~OBDParserMode() {
 // modeSelected - true or false. Is this OBD mode selected for processing or not
 // PIDsList - the list of OBDParserModePID objects selected for processing
 //
-OBDParserMode::ErrorCode configure(bool modeSelected, std::vector &PIDsList)
+OBDParserMode::RetStatus OBDParserMode::configure(bool modeSelected, std::vector<OBDParserModePID> &PIDsList)
 {
-	OBDParserMode::ErrorCode ret = OBDParserMode::ErrorCode::NOT_OK;
+	RetStatus ret = RetStatus::NOT_OK;
 
     if (modeSelected == true)
     {
-        for (int n : PIDsList)
+        for (OBDParserModePID n : PIDsList)
         {
             n.config(true);    //TODO: possible we need iterator here, in place of for above
-    	    modePIDs.push_back(OBDParserModePID);
+    	    modePIDs.push_back(n);
         }
     }
 
@@ -60,29 +60,29 @@ OBDParserMode::ErrorCode configure(bool modeSelected, std::vector &PIDsList)
     //    std::cout << *it << " ";
 
 
-    ret = OBDParserMode::ErrorCode::OK;
+    ret = RetStatus::OK;
 
 	return ret;
 }
 
 
-OBDParserMode::ErrorCode parseData(std::string data)
+OBDParserMode::RetStatus OBDParserMode::parseData(std::string data)
 {
-	OBDParserMode::ErrorCode ret = OBDParserMode::ErrorCode::NOT_OK;
+	RetStatus ret = RetStatus::NOT_OK;
 
 	//test
-    for (int n : modePIDs)
+    for (OBDParserModePID n : modePIDs)
     {
         std::cout << n.toString() << std::endl;
     }
 
-    ret = OBDParserMode::ErrorCode::OK;
+    ret = RetStatus::OK;
 
 	return ret;
 }
 
 
-std::string toString()
+std::string OBDParserMode::toString()
 {
 	std::string ret = "";
 

@@ -12,7 +12,6 @@ CmdManager::CmdManager() {
 
 }
 
-
 CmdManager::~CmdManager() {
 	// TODO Auto-generated destructor stub
 }
@@ -24,7 +23,7 @@ CmdManager::~CmdManager() {
 //CmdManager& CmdManager::operator=(CmdManager &&other) {}
 
 
-void cyclic(int milisec)
+void CmdManager::cyclic(int milisec)
 {
 
 	//TODO: Should it get list of active OBD modes from Config, and processing it ?
