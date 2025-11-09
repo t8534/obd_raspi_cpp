@@ -60,14 +60,13 @@ class Com {
 
 public:
 
+	Com();
+	virtual ~Com();
+
 	enum ErrorCode {
 	    OK,
 	    NOT_OK
 	};
-
-	Com();
-	virtual ~Com();
-
 
 	//Com(const Com &other);
 	//Com(Com &&other);

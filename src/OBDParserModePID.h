@@ -8,6 +8,12 @@
 #ifndef OBDPARSERMODEPID_H_
 #define OBDPARSERMODEPID_H_
 
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+
 class OBDParserModePID {
 public:
 	OBDParserModePID();
@@ -18,6 +24,22 @@ public:
 	//OBDParserModePID(OBDParserModePID &&other);
 	//OBDParserModePID& operator=(const OBDParserModePID &other);
 	//OBDParserModePID& operator=(OBDParserModePID &&other);
+
+
+	enum ErrorCode {
+	    OK,
+	    NOT_OK
+	};
+
+    ErrorCode configure(bool pidSelected);
+
+    ErrorCode parseData(std::string data);
+
+    std::string toString();
+
+private:
+    std::string pidName;
+    bool selected = false;
 
 };
 

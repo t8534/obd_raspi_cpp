@@ -27,6 +27,10 @@ CmdManager::~CmdManager() {
 void cyclic(int milisec)
 {
 
+	//TODO: Should it get list of active OBD modes from Config, and processing it ?
+	// Or just copy its own from the Config ?
+
+
 }
 
 

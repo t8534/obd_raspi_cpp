@@ -5,6 +5,8 @@
  *      Author: arek1
  */
 
+
+
 #include "OBDParserModePID.h"
 
 OBDParserModePID::OBDParserModePID() {
@@ -23,3 +25,29 @@ OBDParserModePID::~OBDParserModePID() {
 //OBDParserModePID& OBDParserModePID::operator=(OBDParserModePID &&other) {}
 
 
+OBDParserModePID::ErrorCode configure(bool pidSelected)
+{
+	OBDParserModePID::ErrorCode ret = OBDParserModePID::ErrorCode::NOT_OK;
+
+	selected = pidSelected;
+
+	return ret;
+}
+
+
+OBDParserModePID::ErrorCode parseData(std::string data)
+{
+	OBDParserModePID::ErrorCode ret = OBDParserModePID::ErrorCode::NOT_OK;
+
+
+
+	return ret;
+}
+
+
+std::string toString()
+{
+	std::string ret = "";
+
+	return ret;
+}
