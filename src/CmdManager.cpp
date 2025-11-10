@@ -5,6 +5,7 @@
  *      Author: arek1
  */
 
+#include <iostream> 
 #include "CmdManager.h"
 
 CmdManager::CmdManager() {
@@ -29,6 +30,7 @@ void CmdManager::cyclic(int milisec)
 	//TODO: Should it get list of active OBD modes from Config, and processing it ?
 	// Or just copy its own from the Config ?
 
+	std::cout << "I am CmdManager.cyclic() " << std::endl; 
 
 }
 

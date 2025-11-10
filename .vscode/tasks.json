@@ -1,6 +1,59 @@
 {
     "tasks": [
         {
+            "label": "Build project (Makefile)",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
+            "detail": "Build entire project using Makefile"
+        },
+        {
+            "label": "Clean project",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": ["clean"],
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/src" 
+
+            },
+            "detail": "Clean build artifacts"
+        },
+        {
+            "label": "Rebuild project",
+            "type": "shell",
+            "command": "mingw32-make ",
+            "args": ["rebuild"],
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}/src"  
+            },
+            "detail": "Clean and rebuild everything"
+        },
+        {
+            "label": "Run program",
+            "type": "shell",
+            "command": "./obd_raspi_cpp.exe",
+            "dependsOn": "Build project (Makefile)",
+            "problemMatcher": [],
+            "options": {
+                 "cwd": "${workspaceFolder}/src"
+            },
+            "detail": "Run the compiled program"
+        },
+
+
+
+
+        {
             "type": "cppbuild",
             "label": "C/C++: gcc build active file",
             "command": "/usr/bin/gcc",
