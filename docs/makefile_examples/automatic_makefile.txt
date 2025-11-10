@@ -1,0 +1,61 @@
+# Make your Makefile automatic, so you don’t need to manually list every .cpp file
+# (including those in subdirectories like diag/).
+# We’ll use GNU Make’s wildcard and patsubst functions to automatically find and
+# compile everything.
+#
+# What this does:
+#
+# SRC_DIRS := . diag       List of directories to search for .cpp files
+# $(wildcard ...)          Expands to a list of all .cpp files found in those directories
+# $(patsubst ...)          Converts .cpp → .o for the object files
+# $(TARGET): $(OBJS)       Automatically links all compiled object files
+# %.o: %.cpp               Generic compile rule for all sources
+# clean                    Works on both Windows (del) and Unix (rm)
+#
+#
+#
+# Optional (recursive search for all subdirectories)
+# If you plan to have deeper folder hierarchies (like src/core/, src/utils/, etc.),
+# you can use this instead:
+#
+# SRC_DIRS := $(shell find . -type d)
+# SRCS := $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
+#
+# Works great on Linux/macOS/WSL, but find is not built into Windows CMD — you’d need
+# Git Bash or WSL for that.
+#
+
+
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++11 -Wall -I. -Idiag
+
+# Output binary
+TARGET := app.exe
+
+# Automatically find all .cpp files (recursively)
+SRC_DIRS := . diag
+SRCS := $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
+
+# Generate .o file list
+OBJS := $(patsubst %.cpp, %.o, $(SRCS))
+
+# Default rule
+all: $(TARGET)
+
+# Link step
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Compile rule (pattern for .cpp → .o)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean up (Windows or Unix compatible)
+clean:
+	del /Q $(OBJS) $(TARGET) 2>nul || rm -f $(OBJS) $(TARGET)
+
+# Rebuild everything
+rebuild: clean all
+
+.PHONY: all clean rebuild

@@ -1,0 +1,538 @@
+I would like one of makefile files above in Visual Studio Commander, how to configure it ? At this moment my tasks.json file looks like below:
+
+Configure VS Code build task
+
+You already have a tasks.json — open it (.vscode/tasks.json).
+If it doesn’t exist yet, create it manually.
+
+Replace its contents with this 👇
+
+Example tasks.json for Makefile build (Windows / MinGW)
+
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build project (Makefile)",
+            "type": "shell",
+            "command": "make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Clean project",
+            "type": "shell",
+            "command": "make",
+            "args": ["clean"],
+            "group": "none",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ]
+}
+
+
+| Field                                 | Meaning                                                    |
+| ------------------------------------- | ---------------------------------------------------------- |
+| `"command": "make"`                   | Run the GNU Make program available in your PATH            |
+| `"args": []`                          | No arguments → executes the default target (`all`)         |
+| `"group"`                             | Integrates with VS Code’s build system (Ctrl + Shift +B)   |
+| `"problemMatcher": ["$gcc"]`          | Highlights compiler errors/warnings directly in the editor |
+| `"options.cwd": "${workspaceFolder}"` | Run make in the project’s root directory                   |
+
+
+Optional: Run “Clean” from VS Code Command Palette
+
+Once this is in place, you can:
+
+Press Ctrl + Shift +B → builds automatically via Makefile
+
+Press F1 → “Tasks: Run Task” → choose Clean project → cleans build files
+
+
+Ensure environment is configured
+
+Make sure your MinGW bin folder (where g++, gcc, and make.exe live) is added to your PATH.
+
+Example (typical MinGW location):
+
+C:\mingw64\bin
+
+
+You can test in the VS Code Terminal:
+
+make --version
+g++ --version
+
+
+If both commands work, you’re ready.
+
+
+Optional — Auto run program after build
+
+If you’d like VS Code to run the compiled program automatically after building, you can add a second task like this:
+
+{
+    "label": "Run program",
+    "type": "shell",
+    "command": "./app.exe",
+    "dependsOn": "Build project (Makefile)",
+    "problemMatcher": []
+}
+
+
+Now you can:
+
+Run make
+
+Then immediately launch app.exe
+by choosing “Run program” in “Tasks: Run Task”.
+
+
+| Command                                | Where to check               |
+| -------------------------------------- | ---------------------------- |
+| `make`                                 | Works in VS Code Terminal    |
+| `Ctrl + Shift +B`                      | Builds using your Makefile   |
+| `F1 → Tasks: Run Task → Clean project` | Cleans correctly             |
+| `app.exe`                              | Appears in your project root |
+
+
+
+Excellent — that’s your current VS Code tasks.json, and it’s configured to compile a single C file directly (using gcc) instead of using your Makefile.
+
+Let’s adapt it properly so that VS Code runs your Makefile (for the whole project, including subdirectories and multiple classes), while keeping it clean and working both in Windows (MinGW) and Linux/WSL.
+
+Replace your current tasks.json with this
+
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build project (Makefile)",
+            "type": "shell",
+            "command": "make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Build entire project using Makefile"
+        },
+        {
+            "label": "Clean project",
+            "type": "shell",
+            "command": "make",
+            "args": ["clean"],
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Clean build artifacts"
+        },
+        {
+            "label": "Rebuild project",
+            "type": "shell",
+            "command": "make",
+            "args": ["rebuild"],
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Clean and rebuild everything"
+        }
+    ]
+}
+
+
+| Setting                                         | Meaning                                                |
+| ----------------------------------------------- | ------------------------------------------------------ |
+| `"command": "make"`                             | Calls GNU Make directly instead of gcc/g++             |
+| `"cwd": "${workspaceFolder}"`                   | Ensures `make` runs from your project root             |
+| `"args": []`                                    | No extra args → builds the default target (`all`)      |
+| `"problemMatcher": ["$gcc"]`                    | Highlights compiler errors and warnings inline         |
+| `"group": {"kind": "build", "isDefault": true}` | Allows **Ctrl + Shift + B** to trigger this Make build |
+
+
+Optional: run your program directly from VS Code
+
+If your Makefile builds an executable like app.exe (Windows) or app (Linux), you can add this task too:
+
+{
+    "label": "Run program",
+    "type": "shell",
+    "command": "./app.exe",
+    "dependsOn": "Build project (Makefile)",
+    "problemMatcher": [],
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    "detail": "Run the compiled program"
+}
+
+
+You can then execute it from:
+
+F1 → Tasks: Run Task → Run program
+
+
+How to build inside VS Code
+
+Press Ctrl + Shift +B → builds automatically using your Makefile
+
+Watch compiler output in the integrated terminal
+
+If you want to clean:
+F1 → Tasks: Run Task → Clean project
+
+If successful, run app.exe (or ./app) directly from terminal or via the “Run program” task.
+
+
+Would you like me to also show how to set up the launch.json file, so you can press F5 to debug your program (using GDB or gdb.exe from MinGW)?
+
+
+Excellent 👌 — let’s now connect everything so you can build and debug your C++ project (using your Makefile) directly in Visual Studio Code with MinGW (Windows) or GDB (Linux/WSL).
+
+
+What you’ll have after this
+
+- Build via Makefile (Ctrl + Shift + B)
+- Run or debug via F5
+- Breakpoints and variable inspection work
+- Cross-platform (Windows MinGW / Linux / WSL)
+
+
+Prerequisites
+On Windows (MinGW)
+
+Make sure these are in your PATH:
+
+C:\mingw64\bin
+
+
+and that you can run from VS Code’s terminal:
+
+g++ --version
+gdb --version
+make --version
+
+On Linux / WSL
+
+Install build tools:
+
+sudo apt install build-essential gdb
+
+
+Create .vscode/launch.json
+For Windows + MinGW (gdb.exe)
+
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug project (MinGW)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/mingw64/bin/gdb.exe",
+            "preLaunchTask": "Build project (Makefile)",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
+
+
+For Linux / WSL (gdb)
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug project (Linux)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "Build project (Makefile)",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
+
+
+| Field                     | Meaning                                                   |
+| ------------------------- | --------------------------------------------------------- |
+| `"type": "cppdbg"`        | Tells VS Code to use the C++ debugger                     |
+| `"program"`               | Path to the compiled executable (from your Makefile)      |
+| `"preLaunchTask"`         | Runs the Makefile build task before starting the debugger |
+| `"miDebuggerPath"`        | Path to `gdb.exe` or `gdb` binary                         |
+| `"externalConsole": true` | Opens a terminal window for input/output                  |
+| `"stopAtEntry": false`    | Set `true` if you want to break at `main()` on startup    |
+
+
+Using it
+
+Build manually
+Ctrl + Shift + B → “Build project (Makefile)”
+
+Debug
+
+Press F5
+
+Choose Debug project (MinGW) (first time only)
+
+Breakpoints now work!
+
+Clean
+F1 → Tasks: Run Task → Clean project
+
+
+Tip: Change output name automatically
+
+If your Makefile uses TARGET := $(notdir $(CURDIR)).exe,
+then adjust "program": "${workspaceFolder}/app.exe"
+to:
+
+"program": "${workspaceFolder}/${workspaceFolderBasename}.exe"
+
+
+Summary
+
+After this setup, you can:
+
+Ctrl + Shift + B → build via Makefile
+
+F5 → launch debugger
+
+F9 → toggle breakpoints
+
+F10 / F11 → step through code
+
+Shift + F5 → stop debugging
+
+
+When I run Build Project under vsc, as above, I have got a message: mingw32-make: *** No targets specified and no makefile found. Stop.
+
+xcellent — this is a very common issue when integrating Makefile builds in Visual Studio Code.
+Let’s fix it step-by-step 👇
+
+What that message means
+
+mingw32-make: *** No targets specified and no makefile found.  Stop.
+
+
+It means:
+
+The command make (or mingw32-make) didn’t find a file named Makefile (or makefile) in the current working directory where it was executed.
+
+So VS Code is running make, but in the wrong folder — or your Makefile has a different name or location.
+
+
+Step 2 — Check tasks.json working directory
+
+Open .vscode/tasks.json and confirm that the "cwd" option points to your project root:
+
+"options": {
+    "cwd": "${workspaceFolder}"
+}
+
+
+This tells VS Code to run make in the same folder where your Makefile lives.
+
+If you have your sources in a subfolder (e.g. src/), but the Makefile is at the root, you still want this to be ${workspaceFolder}.
+
+Step 3 — Verify in the VS Code terminal
+
+Open the VS Code terminal (`Ctrl+``) and run:
+
+dir Makefile      # on Windows
+# or
+ls Makefile       # on Linux / WSL
+
+
+If the file isn’t found, you’re in the wrong directory.
+
+Then try:
+
+make
+
+
+If that builds successfully, VS Code will work once "cwd" is correct.
+
+
+tep 4 — Ensure make is installed and available
+
+On Windows with MinGW:
+
+The tool might be named mingw32-make.exe instead of make.exe.
+
+Try this in the VS Code terminal:
+
+where make
+where mingw32-make
+
+
+If you see only mingw32-make, update your task:
+
+"command": "mingw32-make",
+
+
+instead of "make".
+
+Either is fine as long as it matches the binary in your PATH.
+
+Would you like to paste here the exact paths of your Makefile and your .vscode folder (from Windows Explorer)?
+I can show you precisely what "cwd" or "command" you should use.
+
+The Makefile is in the "src" subfolder, how to add this path to "${workspaceFolder}" above ? Could I simply use "${workspaceFolder/src}" ?
+
+Excellent question — you’re very close!
+
+No, you can’t use ${workspaceFolder/src} — that syntax isn’t valid in VS Code’s task configuration.
+But you can absolutely tell VS Code to run make inside your src folder — it just takes a slightly different form.
+
+Let’s fix it properly 
+
+Correct way: use "cwd" pointing to src
+
+In your .vscode/tasks.json, modify the build task like this:
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build project (Makefile in src)",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
+            "detail": "Run Makefile located in src/"
+        }
+    ]
+}
+
+This line:
+
+"cwd": "${workspaceFolder}/src"
+
+
+tells VS Code to change directory into your src/ folder before running make.
+
+| Field                      | Meaning                                           |
+| -------------------------- | ------------------------------------------------- |
+| `"cwd"`                    | “current working directory” for the build command |
+| `"${workspaceFolder}"`     | The root folder you opened in VS Code             |
+| `"${workspaceFolder}/src"` | A valid relative path to your Makefile            |
+
+
+So VS Code runs:
+
+cd src && mingw32-make
+
+
+automatically when you press Ctrl + Shift + B.
+
+
+Alternative: keep cwd at root but specify the path in args
+
+If you prefer to leave the working directory as your project root, you can also tell make where the Makefile is:
+
+"command": "mingw32-make",
+"args": ["-C", "src"]
+
+
+That’s equivalent to:
+
+mingw32-make -C src
+
+
+and works even if you have multiple Makefiles (e.g. one in src/, one in tests/).
+
+Recommended options:
+
+| Option                            | Works? | Description                                      |
+| --------------------------------- | ------ | ------------------------------------------------ |
+| `"cwd": "${workspaceFolder}/src"` | ✅      | Simple, clean, recommended                       |
+| `"args": ["-C", "src"]`           | ✅      | More flexible if you want multiple build folders |
+| `"${workspaceFolder/src}"`        | ❌      | Invalid syntax                                   |
+
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build project (Makefile in src)",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            }
+        }
+    ]
+}
+
+
+Then just:
+
+Press Ctrl + Shift + B
+
+VS Code runs mingw32-make in your src directory
+
+Your app.exe (or target) will be built right there
+
+
+
+
+

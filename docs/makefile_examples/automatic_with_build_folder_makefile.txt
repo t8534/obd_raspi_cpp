@@ -1,0 +1,85 @@
+# This Makefile also auto-create a build/ folder to keep all .o files separate from your
+# source code (cleaner structure, like a professional project)
+#
+# Works on Windows (MinGW) and also on Linux/macOS — using a build/ directory.
+#
+#
+# All .o files stay neatly under build/, mirroring your source folder layout.
+#
+# Compile: make
+# Clean: make clean
+# Rebuild: make rebuild
+#
+# How it works:
+#
+# SRC_DIRS := . diag                                          Directories to search for .cpp files
+# SRCS := $(wildcard ...)                                     Expands to a list of all .cpp files
+# OBJS := $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(SRCS))        Creates a corresponding object file path inside build/
+# mkdir -p $(dir $@)                                          Automatically creates the necessary subdirectories in build/
+# clean                                                       Works on both Windows (del/rmdir) and Linux/macOS (rm -rf)
+#
+#
+# Optional tweak — choose output name automatically
+# If you want the executable to have the same name as your folder (e.g. MyProject.exe):
+# Replace:
+#     TARGET := app.exe
+# With:
+#     TARGET := $(notdir $(CURDIR)).exe
+#
+# Then if your folder is MyProject, your output will be MyProject.exe.
+#
+#
+# 
+
+
+# ==========================
+#  Compiler configuration
+# ==========================
+CXX := g++
+CXXFLAGS := -std=c++11 -Wall -I. -Idiag
+
+# ==========================
+#  Project structure
+# ==========================
+TARGET := app.exe
+BUILD_DIR := build
+SRC_DIRS := . diag
+
+# Find all .cpp files in listed directories
+SRCS := $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
+
+# Generate corresponding .o paths in build/
+OBJS := $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(SRCS))
+
+# ==========================
+#  Default target
+# ==========================
+all: $(TARGET)
+
+# ==========================
+#  Link rule
+# ==========================
+$(TARGET): $(OBJS)
+	@echo Linking $@
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# ==========================
+#  Compilation rule
+# ==========================
+# Creates build subdirectories automatically
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@) 2>nul || mkdir $(subst /,\\,$(dir $@)) >nul 2>&1
+	@echo Compiling $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# ==========================
+#  Clean rules
+# ==========================
+clean:
+	@echo Cleaning...
+	del /Q $(TARGET) 2>nul || rm -f $(TARGET)
+	rmdir /S /Q $(BUILD_DIR) 2>nul || rm -rf $(BUILD_DIR)
+
+rebuild: clean all
+
+.PHONY: all clean rebuild

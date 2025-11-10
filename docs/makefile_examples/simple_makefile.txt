@@ -1,0 +1,60 @@
+# In c++ ver. 11, I have 3 classes defined as Alpha.h, Alpha.cpp, Beta.h, Beta.cpp,
+# Gamma.h, Gamma.cpp. The Gama.h and Gamma.cpp are in subdirectory called diag. 
+# I am using Windows with mingw installed. The g++ and gcc are available.
+# Please generate example of makefile so I could run compilation from the command
+# line using make
+#
+# Use:
+# make
+# make clean
+#
+# For Linux replace the rule:
+#clean:
+#	rm -f $(OBJS) $(TARGET)
+#
+# Meaning:
+# CXX := g++                                       Use the GNU C++ compiler
+# CXXFLAGS := -std=c++11 -Wall -I. -Idiag          Enable C++11, warnings, and include directories
+# TARGET := app.exe                                Output binary name
+# SRCS                                             List of source files (main + Alpha + Beta + Gamma)
+# OBJS := $(SRCS:.cpp=.o)                          Auto-generate list of .o object files
+# $(TARGET): $(OBJS)                               Link rule (build the final executable)
+# %.o: %.cpp                                       Pattern rule: how to compile each source file
+# clean                                            Deletes temporary build files
+#
+
+
+
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++11 -Wall -I. -Idiag
+
+# Target executable
+TARGET := app.exe
+
+# Source files
+SRCS := main.cpp Alpha.cpp Beta.cpp diag/Gamma.cpp
+
+# Object files (replace .cpp with .o)
+OBJS := $(SRCS:.cpp=.o)
+
+# Default rule
+all: $(TARGET)
+
+# Link step
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Compilation rule (pattern rule for .cpp -> .o)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean rule
+clean:
+	del /Q $(OBJS) $(TARGET) 2>nul || rm -f $(OBJS) $(TARGET)
+
+# Optional convenience rule to rebuild everything
+rebuild: clean all
+
+.PHONY: all clean rebuild
+

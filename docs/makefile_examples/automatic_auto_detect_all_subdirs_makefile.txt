@@ -1,0 +1,95 @@
+# Would you like me to extend this Makefile further to auto-detect all
+# subfolders recursively (so it works even if you later add src/core/ or src/utils/) ?
+#
+# Functions:
+# - Automatically detects all .cpp files recursively (in any subdirectory)
+# - Compiles everything into a separate build/ folder
+# - Works on both Windows (MinGW) and Linux/macOS
+# - Requires no manual updates when you add new files
+#
+#
+# Commands to use:
+#
+# Build the project: make
+#
+# Clean everything: make clean
+#
+# Rebuild from scratch: make rebuild
+#
+#
+# How it works:
+# find . -name "*.cpp"          Recursively finds all .cpp files in the current folder tree
+# Fallback wildcard             Used if find isn’t available (on pure Windows CMD)
+# mkdir -p $(dir $@)            Automatically creates subdirectories in build/ for object files
+# Portable cleanup              Works on both Windows (del/rmdir) and Linux (rm)
+# Pattern rule                  Generic recipe for compiling each .cpp → .o
+#
+#
+# Optional improvements:
+# If you later want:
+#
+# - To use C++17 or C++20, change
+#       CXXFLAGS := -std=c++11 → CXXFLAGS := -std=c++20
+#
+# - To name the output automatically after the folder:
+# TARGET := $(notdir $(CURDIR)).exe
+#
+#
+
+
+# ==========================
+#  Compiler configuration
+# ==========================
+CXX := g++
+CXXFLAGS := -std=c++11 -Wall -I.
+
+# ==========================
+#  Project structure
+# ==========================
+TARGET := app.exe
+BUILD_DIR := build
+
+# Detect all .cpp files recursively
+# Works on both Linux/macOS (find) and Windows Git Bash
+SRCS := $(shell find . -name "*.cpp")
+
+# For Windows CMD without 'find', fallback to wildcard search
+ifeq ($(SRCS),)
+SRCS := $(wildcard *.cpp */*.cpp */*/*.cpp)
+endif
+
+# Object files (mirror directory structure under build/)
+OBJS := $(patsubst ./%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+
+# ==========================
+#  Default target
+# ==========================
+all: $(TARGET)
+
+# ==========================
+#  Link rule
+# ==========================
+$(TARGET): $(OBJS)
+	@echo Linking $@
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# ==========================
+#  Compile rule
+# ==========================
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@) 2>nul || mkdir $(subst /,\\,$(dir $@)) >nul 2>&1
+	@echo Compiling $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# ==========================
+#  Utility targets
+# ==========================
+clean:
+	@echo Cleaning build files...
+	del /Q $(TARGET) 2>nul || rm -f $(TARGET)
+	rmdir /S /Q $(BUILD_DIR) 2>nul || rm -rf $(BUILD_DIR)
+
+rebuild: clean all
+
+.PHONY: all clean rebuild
+
