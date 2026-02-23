@@ -1,0 +1,94 @@
+Cpp notes.
+==========
+
+
+#1
+I have a vector defined as unnique_ptr, and want to put it as a parameter to the function, but do not want to move an ownership.
+Just I want to operate on this vectore inside of the function, add and remove its elements, etc. What is the best approach ?
+
+If you want to modify the vector itself (push/pop/erase/reorder) without transferring ownership of the vector container, the best approach is:
+Pass the vector by non-const lvalue reference: std::vector<std::unique_ptr<T>>&
+This does not move ownership of the vector object. It simply gives the function access to the same container.
+That said, be clear about what “ownership” means here:
+You are not transferring ownership to the function (the caller still owns the vector as a container).
+But when you add/remove elements, ownership of the pointed-to objects will of course change (removed elements are destroyed unless moved out).
+
+void updatePids(std::vector<std::unique_ptr<PID>>& pids)
+{
+    // add an element (C++11)
+    pids.emplace_back(std::unique_ptr<PID>(new PID05));
+
+    // remove last element (destroys it)
+    if (!pids.empty())
+        pids.pop_back();
+
+    // erase by condition (example)
+    for (auto it = pids.begin(); it != pids.end(); ) {
+        if ((*it)->id() == 11) {
+            it = pids.erase(it);     // destroys that PID (unless moved out first)
+        } else {
+            ++it;
+        }
+    }
+}
+
+Call site:
+
+std::vector<std::unique_ptr<PID>> pids;
+updatePids(pids);   // no move, no ownership transfer of the vector
+
+Why this is correct ?
+No copying (impossible anyway).
+No moving the vector.
+Function can mutate the container (add/remove/reorder).
+
+If you want read-only access (no add/remove)
+Use const reference:
+
+void printPids(const std::vector<std::unique_ptr<PID>>& pids)
+{
+    for (const auto& p : pids)
+        std::cout << p->id() << "\n";
+}
+
+If you want to remove elements but return them to the caller
+If your function removes some elements and you want to give them back (transfer ownership of specific elements),
+you do it explicitly with std::move on the element:
+
+std::unique_ptr<PID> takeLast(std::vector<std::unique_ptr<PID>>& pids)
+{
+    if (pids.empty()) return nullptr;
+
+    std::unique_ptr<PID> out = std::move(pids.back());
+    pids.pop_back();                // removes empty slot
+    return out;                     // moves out
+}
+
+Still no ownership transfer of the vector, only of a chosen element.
+
+Important: don’t store raw pointers into elements across modifications
+Because std::vector can reallocate when you push_back/emplace_back, any stored raw pointers or references to elements
+(or even iterators) can become invalid. Instead:
+- re-fetch pointers when needed, or
+- use stable containers (e.g. std::list) if you truly need stable addresses/iterators, or
+- reserve capacity: pids.reserve(N).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

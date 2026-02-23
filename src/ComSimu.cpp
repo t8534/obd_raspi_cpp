@@ -7,7 +7,7 @@
 
 #include "ComSimu.h"
 
-ComSimu::ComSimu() {}
+ComSimu::ComSimu() { responseBuffer = "";}
 
 ComSimu::~ComSimu() {}
 
@@ -17,15 +17,47 @@ ComSimu::~ComSimu() {}
 //ComSimu& ComSimu::operator=(const ComSimu &other) {}
 //ComSimu& ComSimu::operator=(ComSimu &&other) {}
 
-ComSimu::ErrorCode ComSimu::sendCmd(std::string cmd)
+
+ComSimu::Command ComSimu::parseCommand(const std::string& s)
 {
-	return ComSimu::ErrorCode::OK;
+    if (s == "START") return Command::Start;
+    if (s == "STOP")  return Command::Stop;
+    if (s == "PAUSE") return Command::Pause;
+
+    return Command::Unknown;
+}
+
+ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)
+{
+	ErrorCode res = NOT_OK;
+
+	Command cmd = parseCommand(cmdString);
+
+	switch (cmd) {
+	    case Command::Start:
+	    	responseBuffer = "This is response to Start command";
+	        break;
+
+	    case Command::Stop:
+	    	responseBuffer = "This is response to Stop command";
+	        break;
+
+	    case Command::Pause:
+	    	responseBuffer = "This is response to Pause command";
+	        break;
+
+	    default:
+	    	responseBuffer = "This is response - Unknown command";
+
+	}
+
+	return res;
 }
 
 
 std::string ComSimu::getResponse()
 {
-	return "test";
+	return responseBuffer;
 }
 
 
@@ -54,4 +86,7 @@ ComSimu::ErrorCode ComSimu::resetSW()
 {
 	return ComSimu::ErrorCode::OK;
 }
+
+
+
 

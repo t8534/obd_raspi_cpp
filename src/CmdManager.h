@@ -8,6 +8,8 @@
 #ifndef CMDMANAGER_H_
 #define CMDMANAGER_H_
 
+#include "Config.h"
+
 class CmdManager {
 public:
 	CmdManager();
@@ -19,11 +21,18 @@ public:
 	//CmdManager& operator=(const CmdManager &other);
 	//CmdManager& operator=(CmdManager &&other);
 
+	// The config() role is to configure CmdManager before it start processing data
+	// in the cyclic() loop. It should be called at application init time, and
+	// also if user change a configuration, or set of OBD Modes for processing
+	// during app runtime.
+    void config(Config &cfg);
 
-    void cyclic(int milisec);
+    void cyclic();
 
 
+private:
 
+    const std::vector<std::unique_ptr<OBDParserMode>> *obdModesList;    //TODO: ordinary pointer or unique_ptr ?
 
 };
 

@@ -76,6 +76,13 @@ public:
 	    NOT_OK
 	};
 
+	enum class Command {
+	    Start,
+	    Stop,
+	    Pause,
+	    Unknown
+	};
+
 
 	ErrorCode sendCmd(std::string cmd);
 
@@ -88,6 +95,14 @@ public:
 	ErrorCode resetHW();    //TODO: return OK or NOT_OK
 
 	ErrorCode resetSW();    //TODO: return OK or NOT_OK
+
+private:
+
+	Command parseCommand(const std::string& cmd);
+
+	std::string responseBuffer;
+
+
 
 };
 

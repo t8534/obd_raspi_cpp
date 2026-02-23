@@ -9,8 +9,7 @@
 #include "CmdManager.h"
 
 CmdManager::CmdManager() {
-	// TODO Auto-generated constructor stub
-
+	obdModesList = nullptr;
 }
 
 CmdManager::~CmdManager() {
@@ -24,7 +23,22 @@ CmdManager::~CmdManager() {
 //CmdManager& CmdManager::operator=(CmdManager &&other) {}
 
 
-void CmdManager::cyclic(int milisec)
+// TODO:
+//  1.
+//  Should it be unique_ptr here in place of ordinary * ?
+//  But I do not want to move ownership.
+//  It could be reference, but in general we should avoid references as parameters.
+//  But with ordinary pointers it looks bad.
+//  ANSWER:
+//  Use reference here, see example at cpp_notes.txt
+
+void CmdManager::config(Config& cfg)
+{
+	//obdModesList = cfg.getOBDModesList();
+
+}
+
+void CmdManager::cyclic()
 {
 
 	//TODO: Should it get list of active OBD modes from Config, and processing it ?

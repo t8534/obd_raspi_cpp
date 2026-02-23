@@ -12,6 +12,9 @@
 
 
 #include <iostream>
+#include "Config.h"
+//#include "Com.h"
+#include "ComSimu.h"
 #include "CmdManager.h"
 
 // For test1 test
@@ -46,10 +49,22 @@ int main() {
 	
     std::cout << "Begin " << std::endl; 
 
-    test1_1();
+    //test1_1();
 
-    //CmdManager cm;
-    //cm.cyclic(10);
+    Config cfg;
+    //Com com;
+    ComSimu com;
+    CmdManager cm;
+
+    if (Config::RetStatus::OK != cfg.configure())
+    {
+    	std::cout << "Error NOT_OK returned from cfg.configure()" << std::endl;
+    	return 0;
+    }
+
+    cm.config(&cfg);
+    cm.cyclic();
+
 
     std::cout << "End " << std::endl; 
 
