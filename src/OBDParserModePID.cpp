@@ -35,11 +35,25 @@ OBDParserModePID::RetStatus OBDParserModePID::configure(bool pidSelected)
 }
 
 
+std::string OBDParserModePID::getCmdLine()
+{
+	std::string ret = "";
+
+	return ret;
+}
+
+
 OBDParserModePID::RetStatus OBDParserModePID::parseData(std::string data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
 
+	return ret;
+}
 
+
+OBDParserModePID::RetStatus OBDParserModePID::processingData(std::string data)
+{
+	RetStatus ret = RetStatus::NOT_OK;
 
 	return ret;
 }

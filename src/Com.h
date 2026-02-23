@@ -49,12 +49,11 @@
 // "STOPPED"
 // "UNABLE TO CONNECT"
 
-
-#include <string>
-
 #ifndef COM_H_
 #define COM_H_
 
+
+#include <string>
 
 class Com {
 

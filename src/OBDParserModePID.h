@@ -33,9 +33,14 @@ public:
 
     RetStatus configure(bool pidSelected);
 
+    virtual std::string getCmdLine();
+
+	//TODO: Probably to remove, will be replaced by processingData()
     RetStatus parseData(std::string data);
 
-    std::string toString();
+    RetStatus processingData(std::string data);
+
+    virtual std::string toString();
 
 private:
     std::string pidName;

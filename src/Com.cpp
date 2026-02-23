@@ -7,15 +7,10 @@
 
 #include "Com.h"
 
-Com::Com() {
-	// TODO Auto-generated constructor stub
-
-}
+Com::Com() {}
 
 
-Com::~Com() {
-	// TODO Auto-generated destructor stub
-}
+Com::~Com() {}
 
 
 //Com::Com(const Com &other) {}
