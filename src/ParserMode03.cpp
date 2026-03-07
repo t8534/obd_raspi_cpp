@@ -22,27 +22,18 @@
 
 #include "ParserMode03.h"
 
-ParserMode03::ParserMode03() {
-	// TODO Auto-generated constructor stub
-
+ParserMode03::ParserMode03()
+{
+    modeName = "ParserMode03";
 }
 
-ParserMode03::~ParserMode03() {
-	// TODO Auto-generated destructor stub
-}
+ParserMode03::~ParserMode03() {}
 
 
 //ParserMode03::ParserMode03(const ParserMode03 &other) {}
 //ParserMode03::ParserMode03(ParserMode03 &&other) {}
 //ParserMode03& ParserMode03::operator=(const ParserMode03 &other) {}
 //ParserMode03& ParserMode03::operator=(ParserMode03 &&other) {}
-
-std::string ParserMode03::toString()
-{
-	std::string ret = "I am ParserMode03";
-
-	return ret;
-}
 
 
 

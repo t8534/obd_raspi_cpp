@@ -20,11 +20,12 @@
 // For test1 test
 #include <vector>
 #include <memory>
-#include "BaseClass.h"
-#include "Alpha.h"
-#include "Beta.h"
+//#include "BaseClass.h"
+//#include "Alpha.h"
+//#include "Beta.h"
 
 
+/*
 void test1_2(std::vector<std::unique_ptr<BaseClass>> &&bcList)
 {
     std::vector<std::unique_ptr<BaseClass>> iList;
@@ -34,8 +35,9 @@ void test1_2(std::vector<std::unique_ptr<BaseClass>> &&bcList)
         std::cout << p->toString() << std::endl; 
 
 }
+*/
 
-
+/*
 void test1_1()
 {
     std::vector<std::unique_ptr<BaseClass>> baseClassList;
@@ -43,7 +45,7 @@ void test1_1()
     baseClassList.emplace_back(std::unique_ptr<BaseClass>(new Beta));
     test1_2(std::move(baseClassList));
 }
-
+*/
 
 int main() {
 	
@@ -62,7 +64,8 @@ int main() {
     	return 0;
     }
 
-    cm.config(&cfg);
+    //cm.config(&cfg);
+    cm.config(cfg);
     cm.cyclic();
 
 

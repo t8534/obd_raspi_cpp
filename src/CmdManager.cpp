@@ -8,12 +8,9 @@
 #include <iostream> 
 #include "CmdManager.h"
 
-CmdManager::CmdManager() {
-	obdModesList = nullptr;
-}
+//CmdManager::CmdManager() {}
 
 CmdManager::~CmdManager() {
-	// TODO Auto-generated destructor stub
 }
 
 
@@ -23,26 +20,48 @@ CmdManager::~CmdManager() {
 //CmdManager& CmdManager::operator=(CmdManager &&other) {}
 
 
-// TODO:
-//  1.
-//  Should it be unique_ptr here in place of ordinary * ?
-//  But I do not want to move ownership.
-//  It could be reference, but in general we should avoid references as parameters.
-//  But with ordinary pointers it looks bad.
-//  ANSWER:
-//  Use reference here, see example at cpp_notes.txt
+//  The collaboration with the obd modes list from Config.
+//  Seems to be the best option is last one (third) from cpp_notes.txt 1.1 (Option C).
+//  Where in CmdManager constructor we set reference to Config.
+//  That way we have access to whole public Config not only to the OBDModesList vector.
+//  What could be useful for future extensions. Alco coupling is lower as we have no access
+//  to the OBDModesList vector that is a member of Config. We have access to whole Config.
 
-void CmdManager::config(Config& cfg)
+void CmdManager::config(const Config& _cfg)
 {
-	//obdModesList = cfg.getOBDModesList();
-
+	cfg = &_cfg;
 }
 
 void CmdManager::cyclic()
 {
+	// In for() loop:
+	// check is OBDMode have PIDs, if so call PIDs sequentially,
+	// call OBDModePID getCmdLine from vector,
+	// send command to ComSimu,
+	// wait for response (can be delayed),
+	// handle communication errors,
+	// call OBDModePID processData and put the response in there,
+	// go to for() loop for next item
 
-	//TODO: Should it get list of active OBD modes from Config, and processing it ?
-	// Or just copy its own from the Config ?
+	// The idiom to check is element not null
+	/*
+    for (const auto& n : modePIDs)
+    {
+        if (n)
+            std::cout << n->toString() << std::endl;
+    }
+	*/
+
+	// An example for compilation tests
+    if (!cfg) return;
+    const auto& modes = cfg->getOBDModesList();
+
+    //TODO: Only for compilcation tests, see algo above.
+    for (const auto& m : modes)
+    {
+    	std::cout << m->getCmdLine() << std::endl;
+    }
+
 
 	std::cout << "I am CmdManager.cyclic() " << std::endl; 
 

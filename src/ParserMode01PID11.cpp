@@ -22,26 +22,31 @@
 #include "ParserMode01PID11.h"
 
 ParserMode01PID11::ParserMode01PID11() {
-	// TODO Auto-generated constructor stub
-
+    pidName = "ParserModePID11";
 }
 
-ParserMode01PID11::~ParserMode01PID11() {
-	// TODO Auto-generated destructor stub
-}
-
+ParserMode01PID11::~ParserMode01PID11() {}
 
 //ParserMode01PID11::ParserMode01PID11(const ParserMode01PID11 &other) {}
 //ParserMode01PID11::ParserMode01PID11(ParserMode01PID11 &&other) {}
 //ParserMode01PID11& ParserMode01PID11::operator=(const ParserMode01PID11 &other) {}
 //ParserMode01PID11& ParserMode01PID11::operator=(ParserMode01PID11 &&other) {}
 
-std::string ParserMode01PID11::toString()
+OBDParserModePID::RetStatus ParserMode01PID11::processData(std::string& data)
 {
-	std::string ret = "I am ParserMode01PID11";
+	RetStatus ret = RetStatus::NOT_OK;
+
+	/*
+    for (const auto& n : modePIDs)
+    {
+        if (n)  // TODO: is it really necessary ?
+            std::cout << n->toString() << std::endl;
+    }
+    */
+
+    ret = RetStatus::OK;
 
 	return ret;
 }
-
 
 

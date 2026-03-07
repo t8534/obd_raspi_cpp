@@ -12,7 +12,7 @@
 
 class CmdManager {
 public:
-	CmdManager();
+	CmdManager() : cfg(nullptr) {};
 	virtual ~CmdManager();
 
 
@@ -25,14 +25,14 @@ public:
 	// in the cyclic() loop. It should be called at application init time, and
 	// also if user change a configuration, or set of OBD Modes for processing
 	// during app runtime.
-    void config(Config &cfg);
+    void config(const Config& _cfg);
 
     void cyclic();
 
 
 private:
 
-    const std::vector<std::unique_ptr<OBDParserMode>> *obdModesList;    //TODO: ordinary pointer or unique_ptr ?
+    const Config* cfg;
 
 };
 

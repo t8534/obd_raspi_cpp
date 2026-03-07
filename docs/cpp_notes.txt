@@ -9,7 +9,7 @@ Just I want to operate on this vectore inside of the function, add and remove it
 If you want to modify the vector itself (push/pop/erase/reorder) without transferring ownership of the vector container, the best approach is:
 Pass the vector by non-const lvalue reference: std::vector<std::unique_ptr<T>>&
 This does not move ownership of the vector object. It simply gives the function access to the same container.
-That said, be clear about what �ownership� means here:
+That said, be clear about what “ownership” means here:
 You are not transferring ownership to the function (the caller still owns the vector as a container).
 But when you add/remove elements, ownership of the pointed-to objects will of course change (removed elements are destroyed unless moved out).
 
@@ -66,12 +66,219 @@ std::unique_ptr<PID> takeLast(std::vector<std::unique_ptr<PID>>& pids)
 
 Still no ownership transfer of the vector, only of a chosen element.
 
-Important: don�t store raw pointers into elements across modifications
+Important: don’t store raw pointers into elements across modifications
 Because std::vector can reallocate when you push_back/emplace_back, any stored raw pointers or references to elements
 (or even iterators) can become invalid. Instead:
 - re-fetch pointers when needed, or
 - use stable containers (e.g. std::list) if you truly need stable addresses/iterators, or
 - reserve capacity: pids.reserve(N).
+
+1.1
+But this is a solution in specific m case, two interesting approaches:
+
+PROMPT:
+I have a class like below:
+
+class Config {
+public:
+	Config();
+	virtual ~Config();
+	const std::vector<std::unique_ptr<OBDParserMode>>& getOBDModesList() const;
+private:
+    std::vector<std::unique_ptr<OBDParserMode>> obdModesList;
+};
+
+const std::vector<std::unique_ptr<OBDParserMode>>& Config::getOBDModesList() const
+{
+    return obdModesList;
+}
+
+and class like that:
+
+class CmdManager {
+public:
+	CmdManager();
+	virtual ~CmdManager();
+    void config(Config &cfg);
+    void cyclic();
+private:
+    const std::vector<std::unique_ptr<OBDParserMode>> *obdModesList; 
+};
+
+void CmdManager::config(Config& cfg)
+{
+	obdModesList = cfg.getOBDModesList();
+
+}
+
+void CmdManager::cyclic()
+{
+	std::cout << "I am CmdManager.cyclic() " << std::endl; 
+}
+
+And here is my question. 
+Inside of CmdManager::config() I would like to take any reference to the
+Config class obdModeList field. In such way that I could process it periodically
+inside of CmdManager::cyclic() function. So it should be stored in any local
+CmdManager class member.  What is a best option here ?
+
+Answer:
+=======
+
+Best option: store a reference (or pointer) to the Config’s vector, without taking ownership. Since Config owns the unique_ptrs, CmdManager should only observe them.
+
+There are two clean designs in C++11:
+
+------------------------------------------------------------------------------------------
+Option A (recommended): store a pointer to the vector (nullable, can “not configured yet”)
+------------------------------------------------------------------------------------------
+
+Fix your config() to take the address of the returned reference:
+
+class CmdManager {
+public:
+    CmdManager() : obdModesList_(nullptr) {}
+
+    void config(const Config& cfg) {
+        obdModesList_ = &cfg.getOBDModesList();   // ✅ take address
+    }
+
+    void cyclic() {
+        if (!obdModesList_) return;               // not configured yet
+
+        for (const auto& modePtr : *obdModesList_) {
+            // modePtr is const std::unique_ptr<OBDParserMode>&
+            modePtr->cyclic(); // or whatever periodic method you have
+        }
+    }
+
+private:
+    const std::vector<std::unique_ptr<OBDParserMode>>* obdModesList_;
+};
+
+
+Why this is good:
+
+- No ownership transfer.
+- Can represent “not configured yet” by nullptr.
+- Efficient: no copying, no moving.
+
+Works fine with unique_ptr because you only read/use *modePtr.
+Important constraint: the referenced vector must outlive CmdManager (or at least outlive its use).
+In embedded designs, Config is often global/static, so this is usually fine.
+
+---------------------------------------------------------------
+Option B: store a reference (non-null, but must be initialized)
+---------------------------------------------------------------
+
+If CmdManager must always have valid config (no “unconfigured” state), store a reference member:
+
+class CmdManager {
+public:
+    explicit CmdManager(const Config& cfg)
+        : obdModesList_(cfg.getOBDModesList()) {}
+
+    void cyclic() {
+        for (const auto& modePtr : obdModesList_) {
+            modePtr->cyclic();
+        }
+    }
+
+private:
+    const std::vector<std::unique_ptr<OBDParserMode>>& obdModesList_;
+};
+
+
+Pros / cons
+
+✅ Always valid, no null checks.
+❌ You cannot “reconfigure” later (reference members can’t be reseated).
+❌ Requires Config at construction time.
+
+
+What is wrong in your current code?
+
+obdModesList = cfg.getOBDModesList();
+
+- cfg.getOBDModesList() returns a reference, not a pointer.
+- You declared obdModesList as a pointer, so you must store an address:
+
+correct way:
+
+obdModesList = &cfg.getOBDModesList();
+
+Also, config() should accept const Config& since you only read from it.
+
+
+Practical embedded recommendation
+---------------------------------
+
+In embedded “Init + Cyclic” architecture, the most common pattern is:
+Keep CmdManager default-constructible.
+Call config() once during init.
+Use a pointer + null guard.
+So Option A is typically the best fit.
+
+
+---------------------------------------------------------------------------------------
+Option C: One more improvement: store Config* instead of vector pointer (often cleaner)
+---------------------------------------------------------------------------------------
+
+If later you need more than just the modes list:
+
+class CmdManager {
+public:
+    CmdManager() : cfg_(nullptr) {}
+
+    void config(const Config& cfg) { cfg_ = &cfg; }
+
+    void cyclic() {
+        if (!cfg_) return;
+        const auto& modes = cfg_->getOBDModesList();
+        for (const auto& m : modes) m->cyclic();
+    }
+
+private:
+    const Config* cfg_;
+};
+
+
+This avoids exposing internal container pointers as members.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

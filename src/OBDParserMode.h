@@ -19,8 +19,16 @@
 #include "OBDParserModePID.h"
 
 
-//TODO: If this is base class we need virtual functions here
+//TODO:
+//
+// 1.
+// If this is base class we need virtual functions here
 // Consider, perhaps it should be just only abstract class
+//
+// 2.
+// If this class have a members type pointers to the resources, this class need copy constructor
+// and move constructor.
+
 
 class OBDParserMode
 {
@@ -44,19 +52,30 @@ public:
     // And if selected it should load selected PIDs nad select each od them by calling their configure() function
     RetStatus configure(std::vector<std::unique_ptr<OBDParserModePID>> &&PIDsList);
 
-    virtual std::string getCmdLine();
+    virtual std::string getCmdLine() {return CMD_LINE; };
 
-	//TODO: Probably to remove, will be replaced by processingData()
-    RetStatus parseData(std::string data);
+	//TODO: Probably to remove, will be replaced by processData()
+    //RetStatus parseData(std::string data);
 
-    RetStatus processingData(std::string& data);
+    //RetStatus processData(std::string& data);
+    RetStatus processData(std::string& data);
 
-    virtual std::string toString();
+    virtual std::string toString() {return "I am " + modeName; };
 
 
 private:
     std::string modeName;
-    //bool selected = false;  //TODO: this field is probably not necessary as we make list in Config class.
+    static constexpr const char* CMD_LINE = "This is a command line from OBDParserMode base class";
+
+    // We have also variant like that
+    //class Example {
+    //public:
+    //  Example() : name("ParserMode01") {}
+    //
+    //private:
+    //    const std::string name;
+    //};
+
     std::vector<std::unique_ptr<OBDParserModePID>> modePIDs;  //TODO: probably not necessary as we are going to work on the vector declared in Configure class.
 
 };

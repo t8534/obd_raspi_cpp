@@ -28,6 +28,8 @@
 
 
 #include "Config.h"
+
+/*
 #include "OBDParserMode.h"
 #include "ParserMode01.h"
 #include "ParserMode03.h"
@@ -36,6 +38,7 @@
 #include "ParserMode01PID05.h"
 #include "ParserMode01PID11.h"
 #include "ParserMode01PID12.h"
+*/
 
 
 Config::Config() {
@@ -77,8 +80,12 @@ Config::RetStatus Config::configure()
     ptr.reset();
     
     // Add ParserMode03
-    std::unique_ptr<OBDParserMode> ptr (new ParserMode03);
-    obdModesList.emplace_back(std::move(ptr));
+    //std::unique_ptr<OBDParserMode> ptr (new ParserMode03);   //TODO: clarify. Error Config.cpp:80:40: error: redeclaration of 'std::unique_ptr<OBDParserMode> ptr'
+    //obdModesList.emplace_back(std::move(ptr));
+
+    std::unique_ptr<OBDParserMode> ptr03 (new ParserMode03);
+    obdModesList.emplace_back(std::move(ptr03));
+
 
 
 /*	

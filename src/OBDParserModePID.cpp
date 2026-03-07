@@ -9,14 +9,12 @@
 
 #include "OBDParserModePID.h"
 
-OBDParserModePID::OBDParserModePID() {
-	// TODO Auto-generated constructor stub
-
+OBDParserModePID::OBDParserModePID()
+{
+    pidName = "OBDParserModePID - base class";
 }
 
-OBDParserModePID::~OBDParserModePID() {
-	// TODO Auto-generated destructor stub
-}
+OBDParserModePID::~OBDParserModePID() {}
 
 
 //OBDParserModePID::OBDParserModePID(const OBDParserModePID &other) {}
@@ -25,43 +23,50 @@ OBDParserModePID::~OBDParserModePID() {
 //OBDParserModePID& OBDParserModePID::operator=(OBDParserModePID &&other) {}
 
 
+//TODO: is this still necessary for PID ?
 OBDParserModePID::RetStatus OBDParserModePID::configure(bool pidSelected)
 {
 	RetStatus ret = RetStatus::NOT_OK;
-
-	selected = pidSelected;
 
 	return ret;
 }
 
 
+// TODO: remove finally, the implementation is in .h
+/*
 std::string OBDParserModePID::getCmdLine()
 {
 	std::string ret = "";
 
 	return ret;
 }
+*/
 
-
+// TODO: remove finally, it is replaced processData()
+/*
 OBDParserModePID::RetStatus OBDParserModePID::parseData(std::string data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
 
 	return ret;
 }
+*/
 
-
-OBDParserModePID::RetStatus OBDParserModePID::processingData(std::string data)
+OBDParserModePID::RetStatus OBDParserModePID::processData(std::string& data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
 
+	/*
+    for (const auto& n : modePIDs)
+    {
+        if (n)  // TODO: is it really necessary ?
+            std::cout << n->toString() << std::endl;
+    }
+    */
+
+    ret = RetStatus::OK;
+
 	return ret;
 }
 
 
-std::string OBDParserModePID::toString()
-{
-	std::string ret = "";
-
-	return ret;
-}

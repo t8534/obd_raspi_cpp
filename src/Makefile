@@ -11,8 +11,8 @@ TARGET := obd_raspi_cpp.exe
 
 # Source files
 # SRCS := main.cpp Alpha.cpp Beta.cpp diag/Gamma.cpp
-#SRCS := obd_raspi_cpp.cpp CmdManager.cpp
-SRCS := obd_raspi_cpp.cpp BaseClass.cpp Alpha.cpp Beta.cpp CmdManager.cpp 
+SRCS := obd_raspi_cpp.cpp OBDParserMode.cpp OBDParserModePID.cpp ParserMode01.cpp ParserMode01PID05.cpp ParserMode01PID11.cpp ParserMode01PID12.cpp ParserMode03.cpp Config.cpp ComSimu.cpp CmdManager.cpp
+#SRCS := obd_raspi_cpp.cpp BaseClass.cpp Alpha.cpp Beta.cpp CmdManager.cpp 
 
 # Object files (replace .cpp with .o)
 OBJS := $(SRCS:.cpp=.o)

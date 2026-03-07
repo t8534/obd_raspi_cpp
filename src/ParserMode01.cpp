@@ -11,14 +11,12 @@
 
 #include "ParserMode01.h"
 
-ParserMode01::ParserMode01() {
-	// TODO Auto-generated constructor stub
-
+ParserMode01::ParserMode01()
+{
+    modeName = "ParserMode01";
 }
 
-ParserMode01::~ParserMode01() {
-	// TODO Auto-generated destructor stub
-}
+ParserMode01::~ParserMode01() {}
 
 
 //ParserMode01::ParserMode01(const ParserMode01 &other) {}
@@ -26,9 +24,4 @@ ParserMode01::~ParserMode01() {
 //ParserMode01& ParserMode01::operator=(const ParserMode01 &other) {}
 //ParserMode01& ParserMode01::operator=(ParserMode01 &&other) {}
 
-std::string ParserMode01::toString()
-{
-	std::string ret = "I am ParserMode01";
-	return ret;
-}
 

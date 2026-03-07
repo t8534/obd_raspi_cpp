@@ -12,14 +12,12 @@
 #include "OBDParserMode.h"
 
 
-OBDParserMode::OBDParserMode() {
-	// TODO Auto-generated constructor stub
-
+OBDParserMode::OBDParserMode()
+{
+    modeName = "OBDParserMode - base class";
 }
 
-OBDParserMode::~OBDParserMode() {
-	// TODO Auto-generated destructor stub
-}
+OBDParserMode::~OBDParserMode() {}
 
 
 //OBDParserMode::OBDParserMode(const OBDParserMode &other) {}
@@ -90,42 +88,44 @@ OBDParserMode::RetStatus OBDParserMode::configure(std::vector<std::unique_ptr<OB
 }
 
 
+/*
 OBDParserMode::RetStatus OBDParserMode::parseData(std::string data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
 
-	//test
-    for (OBDParserModePID n : modePIDs)
+    for (const auto& n : modePIDs)
     {
-        std::cout << n.toString() << std::endl;
+        if (n)
+            std::cout << n->toString() << std::endl;
     }
 
     ret = RetStatus::OK;
 
 	return ret;
 }
+*/
 
 
+
+// TODO: remove finally, the implementation is in .h
+/*
 std::string OBDParserMode::getCmdLine()
 {
 	std::string ret = "";
 
 	return ret;
 }
+*/
 
-
-
-OBDParserMode::RetStatus processingData(std::string& data)
+OBDParserMode::RetStatus OBDParserMode::processData(std::string& data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
 
-	//test
-	/*
-    for (OBDParserModePID n : modePIDs)
+    for (const auto& n : modePIDs)
     {
-        std::cout << n.toString() << std::endl;
+        if (n)  // TODO: is it really necessary ?
+            std::cout << n->toString() << std::endl;
     }
-    */
 
     ret = RetStatus::OK;
 
@@ -133,14 +133,6 @@ OBDParserMode::RetStatus processingData(std::string& data)
 }
 
 
-
-
-std::string OBDParserMode::toString()
-{
-	std::string ret = "I am OBDParserMode";
-
-	return ret;
-}
 
 
 

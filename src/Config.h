@@ -19,7 +19,15 @@
 #include <string>
 
 #include "OBDParserMode.h"
+
+#include "ParserMode01.h"
 #include "OBDParserModePID.h"
+#include "ParserMode01PID05.h"
+#include "ParserMode01PID11.h"
+#include "ParserMode01PID12.h"
+
+#include "ParserMode03.h"
+
 
 
 class Config {
