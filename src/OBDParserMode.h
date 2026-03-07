@@ -54,11 +54,9 @@ public:
 
     virtual std::string getCmdLine() {return CMD_LINE; };
 
-	//TODO: Probably to remove, will be replaced by processData()
-    //RetStatus parseData(std::string data);
-
-    //RetStatus processData(std::string& data);
     RetStatus processData(std::string& data);
+
+    const std::vector<std::unique_ptr<OBDParserModePID>>& getOBDModePIDsList() const { return modePIDs; };
 
     virtual std::string toString() {return "I am " + modeName; };
 
@@ -76,7 +74,8 @@ private:
     //    const std::string name;
     //};
 
-    std::vector<std::unique_ptr<OBDParserModePID>> modePIDs;  //TODO: probably not necessary as we are going to work on the vector declared in Configure class.
+
+    std::vector<std::unique_ptr<OBDParserModePID>> modePIDs;
 
 };
 

@@ -10,6 +10,17 @@
 //
 //
 
+// TODO:
+//
+// 1.
+// [260307]
+// CmdManager.cyclic() is working and collect all CmdLines from OBDMode and OBDModePIDs recursively.
+// The next step is update cyclic() to the final way: get cmd line, communicate with ComSimu,
+// get response and push it ncak to OBDModes and PIDs.
+// Also ComdLine should be replaced with real ones.
+// The next step will be processing responses inside of ODBModes and PIDs.
+//
+
 
 #include <iostream>
 #include "Config.h"

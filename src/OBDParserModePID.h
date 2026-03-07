@@ -47,9 +47,6 @@ public:
 
     virtual std::string getCmdLine() {return CMD_LINE; };
 
-	//TODO: Probably to remove, will be replaced by processingData()
-    //RetStatus parseData(std::string data);
-
     virtual RetStatus processData(std::string& data);
 
     virtual std::string toString() {return "I am " + pidName; };

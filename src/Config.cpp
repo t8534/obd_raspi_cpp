@@ -118,9 +118,10 @@ Config::RetStatus Config::configure()
 // }
 //
 // Key points:
-// Returns a const reference — efficient, no copy.
+// Returns a const reference is efficient, no copy.
 // Callers cannot modify the list (compiler prevents it).
 // Use this form almost always if you only need to expose data for reading.
+//TODO: move it to .h
 const std::vector<std::unique_ptr<OBDParserMode>>& Config::getOBDModesList() const
 {
     return obdModesList;

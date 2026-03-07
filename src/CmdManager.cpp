@@ -42,6 +42,8 @@ void CmdManager::cyclic()
 	// handle communication errors,
 	// call OBDModePID processData and put the response in there,
 	// go to for() loop for next item
+	// If OBDMode has no CmdLine you have to detectd it and do not send it to the ELM.
+    //
 
 	// The idiom to check is element not null
 	/*
@@ -57,9 +59,16 @@ void CmdManager::cyclic()
     const auto& modes = cfg->getOBDModesList();
 
     //TODO: Only for compilcation tests, see algo above.
+    // Working 260307
     for (const auto& m : modes)
     {
     	std::cout << m->getCmdLine() << std::endl;
+    	// If OBDMode has PIDS walk through them and display their command lines.
+        const auto& pidsList = m->getOBDModePIDsList();
+        for (const auto& p : pidsList)
+        {
+        	std::cout << p->getCmdLine() << std::endl;
+        }
     }
 
 

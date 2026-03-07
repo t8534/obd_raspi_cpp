@@ -32,26 +32,6 @@ OBDParserModePID::RetStatus OBDParserModePID::configure(bool pidSelected)
 }
 
 
-// TODO: remove finally, the implementation is in .h
-/*
-std::string OBDParserModePID::getCmdLine()
-{
-	std::string ret = "";
-
-	return ret;
-}
-*/
-
-// TODO: remove finally, it is replaced processData()
-/*
-OBDParserModePID::RetStatus OBDParserModePID::parseData(std::string data)
-{
-	RetStatus ret = RetStatus::NOT_OK;
-
-	return ret;
-}
-*/
-
 OBDParserModePID::RetStatus OBDParserModePID::processData(std::string& data)
 {
 	RetStatus ret = RetStatus::NOT_OK;

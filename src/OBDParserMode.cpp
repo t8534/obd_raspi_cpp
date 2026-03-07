@@ -88,35 +88,6 @@ OBDParserMode::RetStatus OBDParserMode::configure(std::vector<std::unique_ptr<OB
 }
 
 
-/*
-OBDParserMode::RetStatus OBDParserMode::parseData(std::string data)
-{
-	RetStatus ret = RetStatus::NOT_OK;
-
-    for (const auto& n : modePIDs)
-    {
-        if (n)
-            std::cout << n->toString() << std::endl;
-    }
-
-    ret = RetStatus::OK;
-
-	return ret;
-}
-*/
-
-
-
-// TODO: remove finally, the implementation is in .h
-/*
-std::string OBDParserMode::getCmdLine()
-{
-	std::string ret = "";
-
-	return ret;
-}
-*/
-
 OBDParserMode::RetStatus OBDParserMode::processData(std::string& data)
 {
 	RetStatus ret = RetStatus::NOT_OK;
