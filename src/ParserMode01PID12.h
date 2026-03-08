@@ -22,17 +22,18 @@ public:
 	//ParserMode01PID12& operator=(ParserMode01PID12 &&other);
 
 	//TODO: is virtual necessary as we were never here a base class for others ?
-    virtual std::string getCmdLine() {return CMD_LINE; };
+    //virtual std::string getCmdLine() {return CMD_LINE; };
+	virtual const char* getCmdLine() {return CMD_LINE; };
 
     //TODO: is virtual necessary as we were never here a base class for others ?
     virtual RetStatus processData(std::string& data);
 
     //TODO: is virtual necessary as we were never here a base class for others ?
-    virtual std::string toString() {return "I am " + pidName; };
+    virtual std::string toString() {return pidName; };
 
 private:
     std::string pidName;
-    static constexpr const char* CMD_LINE = "This is a command line from ParserModePID12";
+    static constexpr const char* CMD_LINE = "Mode01PID12Cmd";
 
 };
 

@@ -77,14 +77,17 @@ public:
 	};
 
 	enum class Command {
-	    Start,
-	    Stop,
-	    Pause,
-	    Unknown
+	    Mode01Cmd,
+		Mode01PID05Cmd,
+		Mode01PID11Cmd,
+		Mode01PID12Cmd,
+		Mode03Cmd,
+		UnkownCmc
 	};
 
 
-	ErrorCode sendCmd(std::string cmd);
+	//ErrorCode sendCmd(std::string cmd);
+	ErrorCode sendCmd(const char* cmdString) const;
 
 	std::string getResponse();
 
@@ -98,7 +101,8 @@ public:
 
 private:
 
-	Command parseCommand(const std::string& cmd);
+	//Command parseCommand(const std::string& cmd);
+	Command parseCommand(const char* cmd);
 
 	std::string responseBuffer;
 

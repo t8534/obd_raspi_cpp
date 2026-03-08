@@ -52,7 +52,8 @@ public:
     // And if selected it should load selected PIDs nad select each od them by calling their configure() function
     RetStatus configure(std::vector<std::unique_ptr<OBDParserModePID>> &&PIDsList);
 
-    virtual std::string getCmdLine() {return CMD_LINE; };
+    //virtual std::string getCmdLine() {return CMD_LINE; };
+    virtual const char* getCmdLine() {return CMD_LINE; };
 
     RetStatus processData(std::string& data);
 

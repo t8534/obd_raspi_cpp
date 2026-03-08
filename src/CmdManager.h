@@ -9,10 +9,13 @@
 #define CMDMANAGER_H_
 
 #include "Config.h"
+//#include "Com.h"
+#include "ComSimu.h"
 
 class CmdManager {
 public:
-	CmdManager() : cfg(nullptr) {};
+	CmdManager() : cfg(nullptr), com(nullptr) {};
+	CmdManager(ComSimu* _com) : cfg(nullptr), com(_com) {};
 	virtual ~CmdManager();
 
 
@@ -33,6 +36,7 @@ public:
 private:
 
     const Config* cfg;
+    const ComSimu* com;
 
 };
 

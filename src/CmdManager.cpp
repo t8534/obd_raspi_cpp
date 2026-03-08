@@ -8,11 +8,10 @@
 #include <iostream> 
 #include "CmdManager.h"
 
+
 //CmdManager::CmdManager() {}
 
-CmdManager::~CmdManager() {
-}
-
+CmdManager::~CmdManager() {}
 
 //CmdManager::CmdManager(const CmdManager &other) {}
 //CmdManager::CmdManager(CmdManager &&other) {}
@@ -60,14 +59,32 @@ void CmdManager::cyclic()
 
     //TODO: Only for compilcation tests, see algo above.
     // Working 260307
+    //std::string cmdLine = "";    //TODO: Test for empty commands
+    const char* cmdLine = "";    //TODO: Test for empty commands
+    std::string response = "";
+
+
     for (const auto& m : modes)
     {
-    	std::cout << m->getCmdLine() << std::endl;
+    	cmdLine = m->getCmdLine();
+//    	if (cmdLine != "" )  //TODO
+    	{
+    	    std::cout << "Command line " << m->toString() << " is: " << cmdLine << std::endl;
+            com->sendCmd(cmdLine);
+
+
+
+    	}
+
     	// If OBDMode has PIDS walk through them and display their command lines.
         const auto& pidsList = m->getOBDModePIDsList();
         for (const auto& p : pidsList)
         {
-        	std::cout << p->getCmdLine() << std::endl;
+        	cmdLine = p->getCmdLine();
+//        	if (cmdLine != "")   //TODO
+        	{
+        	    std::cout << "Command line " << p->toString() << " is: " << cmdLine << std::endl;
+        	}
         }
     }
 

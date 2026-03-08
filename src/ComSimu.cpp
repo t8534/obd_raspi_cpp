@@ -18,39 +18,53 @@ ComSimu::~ComSimu() {}
 //ComSimu& ComSimu::operator=(ComSimu &&other) {}
 
 
-ComSimu::Command ComSimu::parseCommand(const std::string& s)
+//ComSimu::Command ComSimu::parseCommand(const std::string& s)
+ComSimu::Command ComSimu::parseCommand(const char* s)
 {
-    if (s == "START") return Command::Start;
-    if (s == "STOP")  return Command::Stop;
-    if (s == "PAUSE") return Command::Pause;
+	std::string cmdString(s);
 
-    return Command::Unknown;
+    if (cmdString == "Mode01Cmd") return Command::Mode01Cmd;
+    if (cmdString == "Mode01PID05Cmd")  return Command::Mode01PID05Cmd;
+    if (cmdString == "Mode01PID11Cmd") return Command::Mode01PID11Cmd;
+    if (cmdString == "Mode01PID12Cmd") return Command::Mode01PID12Cmd;
+    if (cmdString == "Mode03Cmd") return Command::Mode03Cmd;
+
+    return Command::UnkownCmc;
 }
 
-ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)
+//ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)
+ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString) const
 {
 	ErrorCode res = NOT_OK;
-
+/*
 	Command cmd = parseCommand(cmdString);
 
 	switch (cmd) {
-	    case Command::Start:
-	    	responseBuffer = "This is response to Start command";
+	    case Command::Mode01Cmd:
+	    	responseBuffer = "This is response to Mode01Cmd command";
 	        break;
 
-	    case Command::Stop:
-	    	responseBuffer = "This is response to Stop command";
+	    case Command::Mode01PID05Cmd:
+	    	responseBuffer = "This is response to Mode01PID05Cmd command";
 	        break;
 
-	    case Command::Pause:
-	    	responseBuffer = "This is response to Pause command";
+	    case Command::Mode01PID11Cmd:
+	    	responseBuffer = "This is response to Mode01PID11Cmd command";
+	        break;
+
+	    case Command::Mode01PID12Cmd:
+	    	responseBuffer = "This is response to Mode01PID12Cmd command";
+	        break;
+
+	    case Command::Mode03Cmd:
+	    	responseBuffer = "This is response to Mode03Cmd command";
 	        break;
 
 	    default:
 	    	responseBuffer = "This is response - Unknown command";
 
 	}
-
+*/
 	return res;
 }
 

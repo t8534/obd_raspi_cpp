@@ -45,7 +45,8 @@ public:
 	//TODO: is this still necessary for PID ?
     RetStatus configure(bool pidSelected);
 
-    virtual std::string getCmdLine() {return CMD_LINE; };
+    //virtual std::string getCmdLine() {return CMD_LINE; };
+    virtual const char* getCmdLine() {return CMD_LINE; };
 
     virtual RetStatus processData(std::string& data);
 
