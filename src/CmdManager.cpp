@@ -91,6 +91,8 @@ void CmdManager::cyclic()
         }
     }
 
+    //TODO: Print responses  from all, for test.
+
 
 	std::cout << "I am CmdManager.cyclic() " << std::endl; 
 

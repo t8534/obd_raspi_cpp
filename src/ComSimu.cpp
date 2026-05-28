@@ -33,7 +33,7 @@ ComSimu::Command ComSimu::parseCommand(const char* s)
 }
 
 //ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)
-ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString) //const
+ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString)
 {
 	ErrorCode res = NOT_OK;
 
@@ -76,14 +76,7 @@ ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString) //const
 
 std::string ComSimu::getResponse()
 {
-    //std::string res = "This is response";
-
-	//responseBuffer = "This is response";
 	return responseBuffer;
-
-	//return "This is response";
-	//return res;
-
 }
 
 

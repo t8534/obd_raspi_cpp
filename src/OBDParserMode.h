@@ -42,6 +42,23 @@ public:
 	//OBDParserMode& operator=(const OBDParserMode &other);
 	//OBDParserMode& operator=(OBDParserMode &&other);
 
+	// Define template for processing data related to this Mode/PID
+	class ResponseDataRecord {
+	public:
+		virtual ~ResponseDataRecord() {}
+		std::string dataBuffer;
+		unsigned int timestamp;   //TODO: replace with uint32_t, or whatever for timestamp
+		unsigned int gpsCoords;   //TODO: replace with uint32_t, or whatever for gpsCoords
+	};
+
+	//TODO: What about this approach in a base class ?
+	/*
+    class ResponseDataRecord {
+    public:
+        virtual ~ResponseDataRecord() {}
+    };
+    */
+
 	enum class RetStatus {
 	    OK,
 	    NOT_OK
@@ -50,14 +67,30 @@ public:
     //TODO: Called during app initialization from Config.
     // It should set selected or not this module.
     // And if selected it should load selected PIDs nad select each od them by calling their configure() function
-    RetStatus configure(std::vector<std::unique_ptr<OBDParserModePID>> &&PIDsList);
+    virtual RetStatus configure(std::vector<std::unique_ptr<OBDParserModePID>> &&PIDsList);
 
     //virtual std::string getCmdLine() {return CMD_LINE; };
     virtual const char* getCmdLine() {return CMD_LINE; };
+    virtual const unsigned int getResponseLen() {return RESPONSE_LEN; };
 
-    RetStatus processData(std::string& data);
+    // Parse and processe received response data
+    virtual RetStatus processData(std::string& data);
 
-    const std::vector<std::unique_ptr<OBDParserModePID>>& getOBDModePIDsList() const { return modePIDs; };
+    // Return the list of PIDs this Mode contains for processing
+    virtual const std::vector<std::unique_ptr<OBDParserModePID>>& getOBDModePIDsList() const { return modePIDs; };
+
+    // Returns the list of currently logged ResponseDataRecors
+    virtual const std::vector<std::unique_ptr<ResponseDataRecord>>& getResponseDataRecordList() const { return responseDataRecordList; };
+
+    // Return current ResponseDataRecord
+    virtual const ResponseDataRecord getCurrentResponseDataRecord() const { return currentResponseDataRecord; };
+
+    //TODO: Check the name of the function, make implementation, decide is implementation enough in the base class
+    //      or should be in the derived classes.
+    //
+    //Clear everything needed when new session is started.
+    virtual void clearBeforeNewSessionStarted() {};
+
 
     virtual std::string toString() {return "I am " + modeName; };
 
@@ -65,6 +98,7 @@ public:
 private:
     std::string modeName;
     static constexpr const char* CMD_LINE = "This is a command line from OBDParserMode base class";
+    static constexpr const unsigned int RESPONSE_LEN = 0;   //TODO set correct value, replace unsigned int with uint16_t
 
     // We have also variant like that
     //class Example {
@@ -75,8 +109,16 @@ private:
     //    const std::string name;
     //};
 
+    //TODO: How to initialize it on init, and when new session is started ?
+    ResponseDataRecord currentResponseDataRecord;
 
+    //TODO: is it necessarry to initialize or empty this vector ? For sure if next session is started, but on first init ?
     std::vector<std::unique_ptr<OBDParserModePID>> modePIDs;
+
+    // Received data are collected here
+    // TODO: vector of pointrs or by value ?
+    //TODO: is it necessarry to initialize or empty this vector ? For sure if next session is started, but on first init ?
+    std::vector<std::unique_ptr<ResponseDataRecord>> responseDataRecordList;
 
 };
 
