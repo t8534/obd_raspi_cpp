@@ -20,6 +20,12 @@
 // Also ComdLine should be replaced with real ones.
 // The next step will be processing responses inside of ODBModes and PIDs.
 //
+// 2. !!!!!!!!!!
+// [260527]
+// In Makefile:
+//     Remove -g below, as this is a hack only.
+//     Configure correct Release/Debug options
+//
 
 
 #include <iostream>
@@ -59,6 +65,7 @@ void test1_1()
 */
 
 int main() {
+
 	
     std::cout << "Begin " << std::endl; 
 
@@ -67,7 +74,8 @@ int main() {
     Config cfg;
     //Com com;
     ComSimu com;
-    CmdManager cm;
+    //CmdManager cm;
+    CmdManager cm(&com);
 
     if (Config::RetStatus::OK != cfg.configure())
     {

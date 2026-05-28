@@ -3,23 +3,8 @@
 #
 
 # Compiler and flags
-# TODO: Remove -g below, as this is a hack only.
-#       Configure correct Release/Debug options
 CXX := g++
-CXXFLAGS := -std=c++11 -Wall -g -I. -Idiag
-
-# Debug changes
-DEBUG_FLAGS := -g -O0
-RELEASE_FLAGS := -O2
-
-BUILD ?= release
-
-ifeq ($(BUILD),debug)
-    CXXFLAGS += $(DEBUG_FLAGS)
-else
-    CXXFLAGS += $(RELEASE_FLAGS)
-endif
-
+CXXFLAGS := -std=c++11 -Wall -I. -Idiag
 
 # Target executable
 TARGET := obd_raspi_cpp.exe
@@ -46,10 +31,6 @@ $(TARGET): $(OBJS)
 # Clean rule
 clean:
 	del /Q $(OBJS) $(TARGET) 2>nul || rm -f $(OBJS) $(TARGET)
-
-# Debug rule
-debug:
-	$(MAKE) BUILD=debug
 
 # Optional convenience rule to rebuild everything
 rebuild: clean all

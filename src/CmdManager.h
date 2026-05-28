@@ -13,6 +13,7 @@
 #include "ComSimu.h"
 
 class CmdManager {
+
 public:
 	CmdManager() : cfg(nullptr), com(nullptr) {};
 	CmdManager(ComSimu* _com) : cfg(nullptr), com(_com) {};
@@ -36,7 +37,7 @@ public:
 private:
 
     const Config* cfg;
-    const ComSimu* com;
+    ComSimu* com;
 
 };
 

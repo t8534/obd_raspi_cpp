@@ -33,45 +33,57 @@ ComSimu::Command ComSimu::parseCommand(const char* s)
 }
 
 //ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)
-ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString) const
+ComSimu::ErrorCode ComSimu::sendCmd(const char* cmdString) //const
 {
 	ErrorCode res = NOT_OK;
-/*
+
 	Command cmd = parseCommand(cmdString);
 
 	switch (cmd) {
 	    case Command::Mode01Cmd:
 	    	responseBuffer = "This is response to Mode01Cmd command";
+	    	res = OK;
 	        break;
 
 	    case Command::Mode01PID05Cmd:
 	    	responseBuffer = "This is response to Mode01PID05Cmd command";
+	    	res = OK;
 	        break;
 
 	    case Command::Mode01PID11Cmd:
 	    	responseBuffer = "This is response to Mode01PID11Cmd command";
+	    	res = OK;
 	        break;
 
 	    case Command::Mode01PID12Cmd:
 	    	responseBuffer = "This is response to Mode01PID12Cmd command";
+	    	res = OK;
 	        break;
 
 	    case Command::Mode03Cmd:
 	    	responseBuffer = "This is response to Mode03Cmd command";
+	    	res = OK;
 	        break;
 
 	    default:
 	    	responseBuffer = "This is response - Unknown command";
 
 	}
-*/
+
 	return res;
 }
 
 
 std::string ComSimu::getResponse()
 {
+    //std::string res = "This is response";
+
+	//responseBuffer = "This is response";
 	return responseBuffer;
+
+	//return "This is response";
+	//return res;
+
 }
 
 

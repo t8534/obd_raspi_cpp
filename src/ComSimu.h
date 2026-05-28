@@ -87,7 +87,7 @@ public:
 
 
 	//ErrorCode sendCmd(std::string cmd);
-	ErrorCode sendCmd(const char* cmdString) const;
+	ErrorCode sendCmd(const char* cmdString); // const;
 
 	std::string getResponse();
 

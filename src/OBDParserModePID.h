@@ -45,6 +45,8 @@ public:
 	//TODO: is this still necessary for PID ?
     RetStatus configure(bool pidSelected);
 
+    //TODO: Replace cmd line with Request
+    //TODO: replace getCmdLine() with getRequest()
     //virtual std::string getCmdLine() {return CMD_LINE; };
     virtual const char* getCmdLine() {return CMD_LINE; };
 
@@ -54,6 +56,8 @@ public:
 
 private:
     std::string pidName;
+
+    //TODO: Replace cmd line with Request
     static constexpr const char* CMD_LINE = "This is a command line from OBDParserModePID base class";
 
 };

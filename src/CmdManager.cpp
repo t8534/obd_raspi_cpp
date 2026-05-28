@@ -59,20 +59,21 @@ void CmdManager::cyclic()
 
     //TODO: Only for compilcation tests, see algo above.
     // Working 260307
-    //std::string cmdLine = "";    //TODO: Test for empty commands
-    const char* cmdLine = "";    //TODO: Test for empty commands
     std::string response = "";
-
 
     for (const auto& m : modes)
     {
-    	cmdLine = m->getCmdLine();
 //    	if (cmdLine != "" )  //TODO
     	{
-    	    std::cout << "Command line " << m->toString() << " is: " << cmdLine << std::endl;
-            com->sendCmd(cmdLine);
+    	    std::cout << "Request of Mode " << m->toString() << " is: " << m->getCmdLine() << std::endl;
 
+    	    //TODO: add check is cmdLine empty
+    	    //TODO: If Mode contains PIDs, than do not send Mode request, but only PIDs requests
+            com->sendCmd(m->getCmdLine());
 
+            //Get response from com
+            std::cout << "    Request sent: " <<  m->getCmdLine() << std::endl;
+            std::cout << "    Response from Com: " << com->getResponse() << std::endl;
 
     	}
 
@@ -80,10 +81,12 @@ void CmdManager::cyclic()
         const auto& pidsList = m->getOBDModePIDsList();
         for (const auto& p : pidsList)
         {
-        	cmdLine = p->getCmdLine();
 //        	if (cmdLine != "")   //TODO
         	{
-        	    std::cout << "Command line " << p->toString() << " is: " << cmdLine << std::endl;
+        	    std::cout << "Request of PID " << p->toString() << " is: " << p->getCmdLine() << std::endl;
+        	    com->sendCmd(p->getCmdLine());
+                std::cout << "    Request sent: " <<  p->getCmdLine() << std::endl;
+                std::cout << "    Response from Com: " << com->getResponse() << std::endl;
         	}
         }
     }
