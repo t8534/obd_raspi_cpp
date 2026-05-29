@@ -24,13 +24,13 @@ public:
 	//ParserMode03& operator=(ParserMode01 &&other);
 
 	//virtual std::string getCmdLine() {return CMD_LINE; };
-	virtual const char* getCmdLine() {return CMD_LINE; };
+	virtual const char* getCmdLine() {return REQUEST; };
 
 	std::string toString() {return modeName; };
 
 private:
     std::string modeName;
-    static constexpr const char* CMD_LINE = "Mode03Cmd";
+    static constexpr const char* REQUEST = "REQUEST Mode03";
 
 };
 

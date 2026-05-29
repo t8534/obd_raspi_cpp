@@ -23,13 +23,13 @@ ComSimu::Command ComSimu::parseCommand(const char* s)
 {
 	std::string cmdString(s);
 
-    if (cmdString == "Mode01Cmd") return Command::Mode01Cmd;
-    if (cmdString == "Mode01PID05Cmd")  return Command::Mode01PID05Cmd;
-    if (cmdString == "Mode01PID11Cmd") return Command::Mode01PID11Cmd;
-    if (cmdString == "Mode01PID12Cmd") return Command::Mode01PID12Cmd;
-    if (cmdString == "Mode03Cmd") return Command::Mode03Cmd;
+    if (cmdString == "REQUEST Mode01") return Command::Mode01Cmd;
+    if (cmdString == "REQUEST Mode01PID05")  return Command::Mode01PID05Cmd;
+    if (cmdString == "REQUEST Mode01PID11") return Command::Mode01PID11Cmd;
+    if (cmdString == "REQUEST Mode01PID12") return Command::Mode01PID12Cmd;
+    if (cmdString == "REQUEST Mode03") return Command::Mode03Cmd;
 
-    return Command::UnkownCmc;
+    return Command::UnkownCmd;
 }
 
 //ComSimu::ErrorCode ComSimu::sendCmd(std::string cmdString)

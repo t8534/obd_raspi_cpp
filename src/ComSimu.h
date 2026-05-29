@@ -82,7 +82,7 @@ public:
 		Mode01PID11Cmd,
 		Mode01PID12Cmd,
 		Mode03Cmd,
-		UnkownCmc
+		UnkownCmd
 	};
 
 

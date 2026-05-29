@@ -24,14 +24,19 @@ public:
 	//ParserMode01& operator=(ParserMode01 &&other);
 
 	//virtual std::string getCmdLine() {return CMD_LINE; };
-	virtual const char* getCmdLine() {return CMD_LINE; };
+	virtual const char* getCmdLine() {return REQUEST; };
 
 
 	std::string toString() {return modeName; };
 
 private:
     std::string modeName;
-    static constexpr const char* CMD_LINE = "Mode01Cmd";
+
+    // For each Mode that has PIDs, there should be no Request (Command Line) itself.
+    // So command line should be empty, this is detected than by CmdManager cycle loop.
+    // For for Modes that have no PIDs, like Mode03, the Request is defined.
+    //static constexpr const char* REQUEST = "REQUEST Mode01";
+    static constexpr const char* REQUEST = "";
 
 };
 

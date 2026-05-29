@@ -23,7 +23,7 @@
 
 ParserMode01PID05::ParserMode01PID05()
 {
-    pidName = "ParserModePID05";
+    pidName = "ParserMode01PID05";
 }
 
 ParserMode01PID05::~ParserMode01PID05() {}

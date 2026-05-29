@@ -49,7 +49,7 @@
 
 ParserMode01PID12::ParserMode01PID12()
 {
-    pidName = "ParserModePID12";
+    pidName = "ParserMode01PID12";
 }
 
 ParserMode01PID12::~ParserMode01PID12() {}

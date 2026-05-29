@@ -57,22 +57,24 @@ void CmdManager::cyclic()
     if (!cfg) return;
     const auto& modes = cfg->getOBDModesList();
 
-    //TODO: Only for compilcation tests, see algo above.
-    // Working 260307
-    std::string response = "";
-
     for (const auto& m : modes)
     {
-//    	if (cmdLine != "" )  //TODO
+        const char* request = m->getCmdLine();
+
+    	// Request (Command Line) empty means that the Mode has PIDs, so it has no Request itself, like Mode01.
+    	// If Mode has no PIDs, like Mode03, than it has Request defined.
+    	if (request && request[0] != '\0')  // alternatively: if (request && std::strlen(request) > 0)
     	{
-    	    std::cout << "Request of Mode " << m->toString() << " is: " << m->getCmdLine() << std::endl;
+    		//Debug:
+    	    //std::cout << "Request of Mode " << m->toString() << " is: " << m->getCmdLine() << std::endl;
+    		std::cout << "Request of Mode " << m->toString() << " is: " << request << std::endl;
 
-    	    //TODO: add check is cmdLine empty
-    	    //TODO: If Mode contains PIDs, than do not send Mode request, but only PIDs requests
-            com->sendCmd(m->getCmdLine());
+    		com->sendCmd(request);
 
+    		// Debug
             //Get response from com
-            std::cout << "    Request sent: " <<  m->getCmdLine() << std::endl;
+            //std::cout << "    Request sent: " <<  m->getCmdLine() << std::endl;
+    		std::cout << "    Request sent: " <<  request << std::endl;
             std::cout << "    Response from Com: " << com->getResponse() << std::endl;
 
     	}
@@ -81,11 +83,18 @@ void CmdManager::cyclic()
         const auto& pidsList = m->getOBDModePIDsList();
         for (const auto& p : pidsList)
         {
-//        	if (cmdLine != "")   //TODO
+        	const char* request = p->getCmdLine();
+        	// There should be no PIDs without a Request, but for any case this is a guard.
+        	if (request && request[0] != '\0')  // alternatively: if (request && std::strlen(request) > 0)
         	{
-        	    std::cout << "Request of PID " << p->toString() << " is: " << p->getCmdLine() << std::endl;
-        	    com->sendCmd(p->getCmdLine());
-                std::cout << "    Request sent: " <<  p->getCmdLine() << std::endl;
+        		//Debug
+        	    //std::cout << "Request of PID " << p->toString() << " is: " << p->getCmdLine() << std::endl;
+        	    std::cout << "Request of PID " << p->toString() << " is: " << request << std::endl;
+
+        	    com->sendCmd(request);
+
+        	    //Debug
+                std::cout << "    Request sent: " <<  request << std::endl;
                 std::cout << "    Response from Com: " << com->getResponse() << std::endl;
         	}
         }

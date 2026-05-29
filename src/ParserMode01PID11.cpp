@@ -22,7 +22,7 @@
 #include "ParserMode01PID11.h"
 
 ParserMode01PID11::ParserMode01PID11() {
-    pidName = "ParserModePID11";
+    pidName = "ParserMode01PID11";
 }
 
 ParserMode01PID11::~ParserMode01PID11() {}

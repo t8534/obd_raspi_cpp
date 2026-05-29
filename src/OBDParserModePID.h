@@ -24,7 +24,12 @@
 // 2.
 // If this class have a members type pointers to the resources, this class need copy constructor
 // and move constructor.
-
+//
+// 3.
+// Think, is this class should be abstract only, or really base class.
+// Because if we have for example vector, not used in derived classes because this is redeclared in there
+// we waste a space keeping it here.
+//
 
 class OBDParserModePID {
 public:
@@ -67,7 +72,7 @@ public:
     //TODO: Replace cmd line with Request
     //TODO: replace getCmdLine() with getRequest()
     //virtual std::string getCmdLine() {return CMD_LINE; };
-    virtual const char* getCmdLine() {return CMD_LINE; };
+    virtual const char* getCmdLine() {return REQUEST; };
     virtual const unsigned int getResponseLen() {return RESPONSE_LEN; };
 
     virtual RetStatus processData(std::string& data);
@@ -76,7 +81,7 @@ public:
     virtual const std::vector<std::unique_ptr<ResponseDataRecord>>& getResponseDataRecordList() const { return responseDataRecordList; };
 
     // Return current ResponseDataRecord
-    virtual const ResponseDataRecord getCurrentResponseDataRecord() const { return currentResponseDataRecord; };
+    virtual const ResponseDataRecord& getCurrentResponseDataRecord() const { return currentResponseDataRecord; };
 
     //TODO: Check the name of the function, make implementation, decide is implementation enough in the base class
     //      or should be in the derived classes.
@@ -88,8 +93,7 @@ public:
 private:
     std::string pidName;
 
-    //TODO: Replace cmd line with Request
-    static constexpr const char* CMD_LINE = "This is a command line from OBDParserModePID base class";
+    static constexpr const char* REQUEST = "This is a command line from OBDParserModePID base class";
     static constexpr const unsigned int RESPONSE_LEN = 0;   //TODO set correct value, replace unsigned int with uint16_t
 
     //TODO: How to initialize it on init, and when new session is started ?

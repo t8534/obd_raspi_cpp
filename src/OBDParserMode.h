@@ -66,14 +66,14 @@ public:
 
     //TODO: Called during app initialization from Config.
     // It should set selected or not this module.
-    // And if selected it should load selected PIDs nad select each od them by calling their configure() function
+    // And if selected it should load selected PIDs and select each of them by calling their configure() function
     virtual RetStatus configure(std::vector<std::unique_ptr<OBDParserModePID>> &&PIDsList);
 
     //virtual std::string getCmdLine() {return CMD_LINE; };
-    virtual const char* getCmdLine() {return CMD_LINE; };
+    virtual const char* getCmdLine() {return REQUEST; };
     virtual const unsigned int getResponseLen() {return RESPONSE_LEN; };
 
-    // Parse and processe received response data
+    // Parse and process received response data
     virtual RetStatus processData(std::string& data);
 
     // Return the list of PIDs this Mode contains for processing
@@ -83,7 +83,7 @@ public:
     virtual const std::vector<std::unique_ptr<ResponseDataRecord>>& getResponseDataRecordList() const { return responseDataRecordList; };
 
     // Return current ResponseDataRecord
-    virtual const ResponseDataRecord getCurrentResponseDataRecord() const { return currentResponseDataRecord; };
+    virtual const ResponseDataRecord& getCurrentResponseDataRecord() const { return currentResponseDataRecord; };
 
     //TODO: Check the name of the function, make implementation, decide is implementation enough in the base class
     //      or should be in the derived classes.
@@ -97,7 +97,7 @@ public:
 
 private:
     std::string modeName;
-    static constexpr const char* CMD_LINE = "This is a command line from OBDParserMode base class";
+    static constexpr const char* REQUEST = "This is a command line from OBDParserMode base class";
     static constexpr const unsigned int RESPONSE_LEN = 0;   //TODO set correct value, replace unsigned int with uint16_t
 
     // We have also variant like that

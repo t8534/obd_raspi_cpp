@@ -23,7 +23,7 @@ public:
 
 	//TODO: is virtual necessary as we were never here a base class for others ?
     //virtual std::string getCmdLine() {return CMD_LINE; };
-	virtual const char* getCmdLine() {return CMD_LINE; };
+	virtual const char* getCmdLine() {return REQUEST; };
 
     //TODO: is virtual necessary as we were never here a base class for others ?
     virtual RetStatus processData(std::string& data);
@@ -33,7 +33,7 @@ public:
 
 private:
     std::string pidName;
-    static constexpr const char* CMD_LINE = "Mode01PID12Cmd";
+    static constexpr const char* REQUEST = "REQUEST Mode01PID12";
 
 };
 
